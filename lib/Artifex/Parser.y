@@ -44,6 +44,7 @@ use \Artifex\Runtime\Assign,
     \Artifex\Runtime\Expr_Foreach,
     \Artifex\Runtime\RawString,
     \Artifex\Runtime\Term,
+    \Artifex\Runtime\DefFunction,
     \Artifex\Runtime\Variable;
 }
 
@@ -82,6 +83,7 @@ body(A) ::= . { A = array(); }
 code(A) ::= T_RAW_STRING(B). { A = new RawString(B); }
 code(A) ::= T_START code(B). { A = B; }
 
+/* foreach {{{ */
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(C) T_RPARENT body(X) T_END. { 
     A = new Expr_Foreach(B, C, NULL, X); 
 }
@@ -92,12 +94,31 @@ code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(E) T_DOUBLE_ARRO
 
 foreach_source(A) ::= variable(B) . { A = B; }
 foreach_source(A) ::= json(B) . { A = new Term(B); }
+/* }}} */
 
-code(A) ::= variable(B) T_ASSIGN expr(C) . { A = new Assign(B, C); }
+/* function definition {{{ */
+code(A) ::= T_FUNCTION T_ALPHA(B) T_LPARENT args(X) T_RPARENT body(Z) T_END . {
+    A = new DefFunction(B, X, Z);
+}
+/* }}} */
+
+/* assign {{{ */
+code(A) ::= variable(B) T_ASSIGN expr(C) T_SEMICOLON . { A = new Assign(B, C); }
+/* }}} */
+
+/* function call {{{ */
 code(A) ::= fnc_call(B) . { A = B; }
+fnc_call(A) ::= T_ALPHA(B) T_LPARENT args(X) T_RPARENT . { 
+    A = new Exec(B, X);
+}
 
+fnc_call(A) ::= variable(B) T_LPARENT args(X) T_RPARENT . { 
+    A = new Exec(B, X);
+}
+/* }}} */
+
+/* if {{{ */
 code(A) ::= if(B) . { A = B; }
-
 if(A) ::= T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . {
     A = new Expr_If(X, Y, Z);
 }
@@ -109,7 +130,9 @@ else_if(A) ::= T_ELSE body(X) T_END . {
     A = X; 
 }
 else_if(A) ::= T_END . { A = NULL; }
+/* }}} */
 
+/* expr {{{ */
 expr(A) ::= T_NOT expr(B). { A = new Expr('not', B); }
 expr(A) ::= expr(B) T_AND(X)  expr(C).  { A = new Expr(strtolower(@X), B, C); }
 expr(A) ::= expr(B) T_OR(X)  expr(C).  { A = new Expr(strtolower(@X), B, C); }
@@ -125,33 +148,30 @@ expr(A) ::= T_AT variable(B) . {
     A = new Exec('var_export', array(B, new Term(true))); 
 }
 expr(A) ::= fnc_call(B) . { A = B; }
+/* }}} */
 
-
-fnc_call(A) ::= T_ALPHA(B) T_LPARENT args(X) T_RPARENT . { 
-    A = new Exec(B, X);
-}
-
-fnc_call(A) ::= variable(B) T_LPARENT args(X) T_RPARENT . { 
-    A = new Exec(B, X);
-}
-
-
+/* function arguments {{{ */
 args(X) ::= args(A) T_COMMA args(B) . { X = array_merge(A, B); }
 args(X) ::= expr(B). { X = array(B); }
 args(X) ::= . { X = array(); }
+/* }}} */
 
+/* variable {{{ */
 variable(A) ::= T_DOLLAR var(B) . { A = new Variable(B); }
 
 var(A) ::= var(B) T_OBJ var(C) . { A = array_merge(B, C); }
 var(A) ::= var(B) T_CURLY_OPEN expr(C) T_CURLY_CLOSE . { A = B ; A[] = C; }
 var(A) ::= T_ALPHA(B) . { A = array(B);}
+/* }}} */
 
+/* term {{{ */
 term(A) ::= T_ALPHA(B)  . { A = trim(B); }
 term(A) ::= T_TRUE      . { A = TRUE; }
 term(A) ::= T_FALSE     . { A = FALSE; }
 term(A) ::= T_STRING(B) . { A = B; }
 term(A) ::= T_NUMBER(B) . { A = B + 0; }
 term(A) ::= json(B) . { A = B; }
+/* }}} */
 
 /* json {{{ */
 json(A) ::= T_CURLY_OPEN json_obj(B) T_CURLY_CLOSE. { A  = B; }

@@ -55,7 +55,7 @@ class Artifex
         return true;
     }
 
-    public static function execute($bytes, $context = array())
+    public static function compile($bytes)
     {
         $tokens = new Tokenizer($bytes);
         $parser = new Parser;
@@ -64,7 +64,12 @@ class Artifex
             $parser->doParse($token[0], $token[1]);
         }
         $parser->doParse(0, 0);
-        $vm = new Runtime($parser->body);
+        return new Runtime($parser->body);
+    }
+
+    public static function execute($bytes, $context = array())
+    {
+        $vm = self::compile($bytes);
         $vm->setContext($context);
         return $vm->run();
     }
