@@ -1,4 +1,4 @@
-<?
+<?php
 
 class BasicTest extends \phpunit_framework_testcase
 {
