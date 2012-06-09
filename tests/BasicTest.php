@@ -57,6 +57,32 @@ EOF
         $this->assertEquals($content, file_get_contents($file));
     }
 
+    public function testIf() {
+        $vm = Artifex::compile('
+        #* function cesar ($n)
+        #* if ($n == 1)
+            1
+        #* else if ($n == 2)
+            2
+        #* else
+            don\'t know
+        #* end end
+        ');
+        $fnc = $vm->getFunction('cesar');
+        $this->assertEquals('1', trim($fnc(1)));
+        $this->assertEquals('2', trim($fnc(2)));
+        $this->assertEquals("don't know", trim($fnc(99)));
+    }
+
+    public function testFunctionCall() {
+        $this->assertEquals(time(), Artifex::execute('#* print(time())'));
+    }
+
+    public function testStringConcat() {
+        $this->assertEquals('foo bar test', Artifex::execute('#* print("foo ". "bar" . " test")'));
+    }
+        
+
     /**
      *  @expectedException \RuntimeException
      */

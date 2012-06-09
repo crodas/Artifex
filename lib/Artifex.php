@@ -61,6 +61,7 @@ class Artifex
         $parser = new Parser;
         foreach ($tokens->getAll() as $token) {
             if ($token[0] == Parser::T_START) continue;
+            $parser->line = $token[2];
             $parser->doParse($token[0], $token[1]);
         }
         $parser->doParse(0, 0);

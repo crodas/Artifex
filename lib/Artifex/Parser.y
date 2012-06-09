@@ -58,7 +58,9 @@ use \Artifex\Runtime\Assign,
     foreach ($this->yy_get_expected_tokens($yymajor) as $token) {
         $expect[] = self::$yyTokenName[$token];
     }
-    throw new Exception('Unexpected ' . $this->tokenName($yymajor) . '(' . $TOKEN. ')' . print_r($expect, true));
+    throw new Exception('Unexpected ' . $this->tokenName($yymajor) .  ' in line ' . $this->line
+        . ' (' . $TOKEN . ') '
+        . ' Expected: ' . print_r($expect, true));
 }
 
 
