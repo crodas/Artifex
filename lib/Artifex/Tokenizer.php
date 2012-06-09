@@ -9,6 +9,7 @@ class Tokenizer
     protected $offset;
 
     protected $keywordsMap = array(
+        "function" => Parser::T_FUNCTION,
         "foreach" => Parser::T_FOREACH,
         "if"      => Parser::T_IF,
         "else"    => Parser::T_ELSE,
@@ -59,6 +60,7 @@ class Tokenizer
             "]"  => Parser::T_SUBSCR_CLOSE,
             ","  => Parser::T_COMMA,
             ":"  => Parser::T_COLON,
+            ";"  => Parser::T_SEMICOLON,
             "+"  => Parser::T_PLUS,
             "-"  => Parser::T_MINUS,
             "*"  => Parser::T_TIMES,
@@ -71,10 +73,10 @@ class Tokenizer
                 if ($pos === false) {
                     $pos = $len;
                 }
-                $status   = self::IN_CODE;
-                $raw_str  = substr($text, $i, $pos - $i);
+                $status  = self::IN_CODE;
+                $raw_str = substr($text, $i, $pos - $i);
                 if (trim($raw_str, " \t\r") == "") {
-                    if ($i == 0) $i--;
+                    $i--;
                     continue;
                 }
 

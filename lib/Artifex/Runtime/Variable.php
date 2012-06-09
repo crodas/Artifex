@@ -3,7 +3,7 @@ namespace Artifex\Runtime;
 
 use Artifex\Runtime;
 
-class Variable extends base {
+class Variable extends Base {
     protected $var;
 
     public function __construct(Array $variable) 

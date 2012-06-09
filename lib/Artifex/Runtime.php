@@ -45,16 +45,29 @@ use \Artifex\Runtime\Assign,
     \Artifex\Runtime\Expr_Foreach,
     \Artifex\Runtime\RawString,
     \Artifex\Runtime\Term,
+    \Artifex\Runtime\DefFunction,
     \Artifex\Runtime\Variable;
 
 class Runtime 
 {
     protected $stmts;
-    protected $varibles;
+    protected $parent;
+    protected $variables = array();
+    protected $functions = array();
 
     public function __construct(Array $stmts)
     {
+        foreach ($stmts as $stmt) {
+            if ($stmt instanceof DefFunction) {
+                $this->functions[strtolower($stmt->getName())] = $stmt;
+            }
+        }
         $this->stmts = $stmts;
+    }
+
+    public function setParentVm(Runtime $vm)
+    {
+        $this->parent = $vm;
     }
 
     public function setContext(Array $context)
@@ -78,6 +91,18 @@ class Runtime
         $this->variables[$key] = $value instanceof Term ? $value : new Term($value);
     }
 
+    public function getFunction($name) {
+        $name = strtolower($name);
+        if (!array_key_exists($name, $this->functions)) {
+            throw new \RuntimeException("Can't find function {$name}");
+        } 
+        $func = $this->functions[$name];
+        $vm   = $this;
+        return function() use ($func, $vm) {
+            return $func->execute($vm, func_get_args());
+        };
+    }
+
     public function get($key)
     {
         if ($key instanceof Variable) {
@@ -90,6 +115,9 @@ class Runtime
         }
         if (array_key_exists($key, $this->variables)) {
             return $this->variables[$key];
+        }
+        if ($this->parent) {
+            return $this->parent->get($key);
         }
         return NULL;
     }

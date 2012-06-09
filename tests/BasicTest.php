@@ -73,4 +73,64 @@ class class__foo__ {
 EOF
         );
     }
+
+    public function testDefineFunction() {
+        $vm = Artifex::compile(<<<'EOF'
+#* function defineClass($foo, $methods)
+class __foo__ {
+    #* foreach ($methods as $method) 
+    public function set__method__() {
+    }
+    #* end
+}
+#* end
+EOF
+        );
+
+        $function = $vm->getFunction("defineClass");
+        $code = $function('foo', array(1,2));
+        
+        $namespace = safe_eval($code);
+        $class     = $namespace . '\\foo';
+        $this->assertTrue(class_exists($class));
+        $this->assertTrue(is_callable($class, 'set1'));
+        $this->assertTrue(is_callable($class, 'set2'));
+    }
+
+    public function testDefineScope() {
+        $vm = Artifex::compile(<<<'EOF'
+#* $foo = "foo";
+#* $methods = [1, 2];
+#* function defineClass($foo, $methods)
+class __foo__ {
+    #* foreach ($methods as $method) 
+    public function set__method__() {
+    }
+    #* end
+}
+#* end
+EOF
+        );
+        $function = $vm->getFunction("defineClass");
+        try {
+            /* it fails because the main 
+               scope haven't run yet and the variables
+               $foo and $methods doens't exists yet */
+            $code = $function();
+            $this->assertTrue(false);
+        } catch (\RuntimeException $e) {
+            $this->assertTrue(true);
+        }
+
+
+        $vm->run();
+        $code = $function();
+        
+        $namespace = safe_eval($code);
+        $class     = $namespace . '\\foo';
+        $this->assertTrue(class_exists($class));
+        $this->assertTrue(is_callable($class, 'set1'));
+        $this->assertTrue(is_callable($class, 'set2'));
+    }
+
 }
