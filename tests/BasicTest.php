@@ -111,9 +111,19 @@ class __foo__ {
 #* end
 EOF
         );
+        $function = $vm->getFunction("defineClass");
+        try {
+            /* it fails because the main 
+               scope haven't run yet and the variables
+               $foo and $methods doens't exists yet */
+            $code = $function();
+            $this->assertTrue(false);
+        } catch (\RuntimeException $e) {
+            $this->assertTrue(true);
+        }
+
 
         $vm->run();
-        $function = $vm->getFunction("defineClass");
         $code = $function();
         
         $namespace = safe_eval($code);
