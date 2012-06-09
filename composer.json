@@ -1,0 +1,13 @@
+{
+    "name": "crodas/Artifex",
+    "description": "Macros on steroids. The easiest way of generating code.",
+    "authors": [
+        {
+            "name": "César D. Rodas",
+            "email": "crodas@php.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
