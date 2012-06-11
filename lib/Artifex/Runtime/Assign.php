@@ -15,7 +15,7 @@ class Assign extends Base
 
     public function execute(Runtime $vm) 
     {
-        $vm->define($this->var, $this->expr);
+        $vm->define($this->var, $vm->getValue($this->expr));
     }
 }
 
