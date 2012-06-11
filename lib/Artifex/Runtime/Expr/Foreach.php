@@ -3,7 +3,7 @@ namespace Artifex\Runtime;
 
 use Artifex\Runtime;
 
-class Expr_Foreach extends base
+class Expr_Foreach extends Base
 {
     protected $source;
     protected $value;
