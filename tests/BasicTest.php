@@ -61,8 +61,7 @@ EOF
         $output = Artifex::execute(<<<'EOF'
 #* foreach ([1,2,3,4,5] as $foo)
 class class__foo__ {
-    #* foreach ($methods as $method) 
-    public function set__method__() {
+    #* foreach ($methods as $method) *# public function set__method__() {
     }
     #* end
 }

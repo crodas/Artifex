@@ -27,7 +27,6 @@
 
     <filter>
         <whitelist>
-            <directory>tests/</directory>
             <directory>lib/</directory>
         </whitelist>
     </filter>

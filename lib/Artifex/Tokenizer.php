@@ -39,6 +39,7 @@ class Tokenizer
         $status = self::IN_TEXT;
         $map = array(
             "#*" => Parser::T_START,
+            "*#" => Parser::T_START,
             "->" => Parser::T_OBJ,
             "==" => Parser::T_EQ,
             "!=" => Parser::T_NE,
@@ -116,6 +117,11 @@ class Tokenizer
                 for($e=2; $e >= 1; $e--) {
                     if (isset($map[substr($text, $i, $e)])) {
                         $token = substr($text, $i, $e);
+                        if ($token == "*#") {
+                            $i += $e - 1;
+                            $status = self::IN_TEXT;
+                            continue 2;
+                        }
                         $tokens[] = Array($map[$token], $token, $line);
                         $i += $e - 1;
                         continue 2;
