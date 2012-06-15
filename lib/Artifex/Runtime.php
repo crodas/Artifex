@@ -91,6 +91,10 @@ class Runtime
         $this->variables[$key] = $value instanceof Term ? $value : new Term($value);
     }
 
+    public function functionExists($name) {
+        return array_key_exists($name, $this->functions);
+    }
+
     public function getFunction($name) {
         $name = strtolower($name);
         if (!array_key_exists($name, $this->functions)) {

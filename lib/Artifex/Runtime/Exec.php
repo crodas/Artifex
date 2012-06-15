@@ -26,7 +26,14 @@ class Exec extends Base
         if (strtolower($this->function) == "print") {
             return $vm->doPrint($args[0]);
         }
-        return call_user_func_array($this->function , $args);
+
+        $function = $this->function;
+        if ($vm->functionExists($function)) {
+            $function = $vm->getFunction($function);
+            $vm->doPrint(call_user_func_array($function , $args));
+            return;
+        }
+        return call_user_func_array($function , $args);
     }
 
     public function Execute(Runtime $vm)
