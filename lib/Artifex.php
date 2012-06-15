@@ -77,14 +77,6 @@ class Artifex
 
     public static function registerAutoloader()
     {
-        spl_autoload_register(function($className) {
-            set_include_path(__DIR__ . PATH_SEPARATOR . get_include_path());
-            $fileParts = explode('\\', ltrim($className, '\\'));
-            if (false !== strpos(end($fileParts), '_')) {
-                array_splice($fileParts, -1, 1, explode('_', current($fileParts)));
-            }
-
-            require implode(DIRECTORY_SEPARATOR, $fileParts) . '.php';
-        });
+        require __DIR__ . "/Artifex/autoload.php";
     }
 }
