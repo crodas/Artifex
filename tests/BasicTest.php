@@ -39,16 +39,29 @@ class BasicTest extends \phpunit_framework_testcase
 {
     public function testLoop() {
         $output = Artifex::execute(<<<EOF
-#* foreach ([1,2,3,4,5] as \$foo)
-    hola __foo__
+#* foreach ([1,2,3,4,5] as \$id => \$foo)
+    hola __id__ __foo__
 #* end
 EOF
         );
-        $this->assertEquals($output, "    hola 1
-    hola 2
-    hola 3
-    hola 4
-    hola 5
+        $this->assertEquals($output, "    hola 0 1
+    hola 1 2
+    hola 2 3
+    hola 3 4
+    hola 4 5
+");
+        
+    }
+
+    public function testObject() {
+        $output = Artifex::execute(<<<EOF
+#* foreach ({foo:1,bar:2} as \$id => \$foo)
+    hola __id__ __foo__
+#* end
+EOF
+        );
+        $this->assertEquals($output, "    hola foo 1
+    hola bar 2
 ");
         
     }
@@ -123,7 +136,7 @@ EOF
         $args = compact('expected', 'a', 'b');
         $code = '#* if ($a+$b/($b-3)*$b >= $expected) print("foo ". "bar" . " test") end';
         $this->assertEquals('foo bar test', Artifex::execute($code), $args);
-        $code = '#* if ((99%3) == 0 && false) print("foo ". "bar" . " test") end';
+        $code = '#* if ((99%3) == 0 && true) print("foo ". "bar" . " test") end';
         $this->assertEquals('foo bar test', Artifex::execute($code), $args);
         $code = '#* if (true != false) print("foo ". "bar" . " test") end';
         $this->assertEquals('foo bar test', Artifex::execute($code), $args);

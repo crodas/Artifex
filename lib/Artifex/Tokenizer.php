@@ -19,6 +19,8 @@ class Tokenizer
         "not"     => Parser::T_NOT,
         "or"      => Parser::T_OR,
         "in"      => Parser::T_IN,
+        "false"   => Parser::T_FALSE,
+        "true"    => Parser::T_TRUE,
     );
 
     const IN_TEXT = 0;
