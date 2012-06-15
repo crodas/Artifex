@@ -35,48 +35,29 @@
   +---------------------------------------------------------------------------------+
 */
 
-use \Artifex\Tokenizer,
-    \Artifex_Parser as Parser,
-    \Artifex\Runtime;
-
-class Artifex
+class bugsTest extends \phpunit_framework_testcase
 {
-    public static function save($path, $code)
+    public function testBugWithAssign()
     {
-        $fp = fopen($path, "a+");
-        if (!flock($fp, LOCK_EX | LOCK_NB)) {
-            fclose($fp);
-            return false;
-        }
-        ftruncate($fp, 0);
-        fwrite($fp, $code);
-        flock($fp, LOCK_UN);
-        fclose($fp);
-        return true;
+        $classes = array("foo", "bar", "foobar");
+        $namespace = safe_eval(Artifex::execute(<<<'EOF'
+#* $classes = @$classes;
+function xxx() {
+    return __classes__;
+}
+EOF
+        , compact('classes')));
+        $fnc = $namespace . '\\xxx';
+        $this->assertEquals($fnc(), $classes);
     }
 
-    public static function compile($bytes)
+    public function testBugCompileEmptyFunction()
     {
-        $tokens = new Tokenizer($bytes);
-        $parser = new Parser;
-        foreach ($tokens->getAll() as $token) {
-            if ($token[0] == Parser::T_START) continue;
-            $parser->line = $token[2];
-            $parser->doParse($token[0], $token[1]);
-        }
-        $parser->doParse(0, 0);
-        return new Runtime($parser->body);
-    }
-
-    public static function execute($bytes, $context = array())
-    {
-        $vm = self::compile($bytes);
-        $vm->setContext($context);
-        return $vm->run();
-    }
-
-    public static function registerAutoloader()
-    {
-        require __DIR__ . "/Artifex/autoload.php";
+        Artifex::execute(<<<'EOF'
+#* function foo()
+#* end
+EOF
+        );
+        $this->assertTrue(true);
     }
 }

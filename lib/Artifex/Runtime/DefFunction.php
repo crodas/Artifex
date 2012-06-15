@@ -34,124 +34,47 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-namespace Artifex;
 
-use \Artifex\Runtime\Assign,
-    \Artifex\Runtime\Base,
-    \Artifex\Runtime\Concat,
-    \Artifex\Runtime\Exec,
-    \Artifex\Runtime\Expr,
-    \Artifex\Runtime\Expr_If,
-    \Artifex\Runtime\Expr_Foreach,
-    \Artifex\Runtime\RawString,
-    \Artifex\Runtime\Term,
-    \Artifex\Runtime\DefFunction,
+namespace Artifex\Runtime;
+
+use Artifex\Runtime,
     \Artifex\Runtime\Variable;
 
-class Runtime 
+class DefFunction 
 {
-    protected $stmts;
-    protected $parent;
-    protected $variables = array();
-    protected $functions = array();
+    protected $name;
+    protected $args;
+    protected $code;
 
-    public function __construct(Array $stmts)
+    public function __construct($name, Array $args, Array $code)
     {
-        foreach ($stmts as $stmt) {
-            if ($stmt instanceof DefFunction) {
-                $this->functions[strtolower($stmt->getName())] = $stmt;
+        $this->name = $name;
+        $this->args = $args;
+        $this->code = $code;
+        foreach ($args as $arg) {
+            if (!($arg instanceof Variable)) {
+                throw new \RuntimeException("Invalid variable, it should be a variable");
             }
         }
-        $this->stmts = $stmts;
     }
 
-    public function setParentVm(Runtime $vm)
+    public function getName() 
     {
-        $this->parent = $vm;
+        return $this->name;
     }
-
-    public function setContext(Array $context)
+    
+    public function execute(Runtime $vm, Array $args = NULL) 
     {
-        foreach($context as $key => $value) {
-            $this->define($key, $value);
+        $fncargs = array();
+        foreach ($this->args as $id => $arg) {
+            if (empty($args[$id])) break;
+            $fncargs[current($arg->getNative())] = $args[$id];
         }
-    }
-
-    public function define($key, $value)
-    {
-        if ($key instanceof Variable) {
-            $key = $key->getNative();
-            if (count($key) == 1) {
-                $key = $key[0];
-            } else {
-                throw new \RuntimeException("I'm not yet implemented");
-            }
+        $pzVm = new Runtime($this->code);
+        $pzVm->setParentVm($vm);
+        if (count($fncargs) > 0) {
+            $pzVm->setContext($fncargs);
         }
-
-        $this->variables[$key] = $value instanceof Term ? $value : new Term($value);
+        return $pzVm->run();
     }
-
-    public function functionExists($name) {
-        return array_key_exists($name, $this->functions);
-    }
-
-    public function getFunction($name) {
-        $name = strtolower($name);
-        if (!array_key_exists($name, $this->functions)) {
-            throw new \RuntimeException("Can't find function {$name}");
-        } 
-        $func = $this->functions[$name];
-        $vm   = $this;
-        return function() use ($func, $vm) {
-            return $func->execute($vm, func_get_args());
-        };
-    }
-
-    public function get($key)
-    {
-        if ($key instanceof Variable) {
-            $key = $key->getNative();
-        }
-        if (is_array($key) && count($key) == 1) {
-            $key = $key[0];
-        } else if (is_array($key)) {
-            throw new \RuntimeException("I'm not yet implemented");
-        }
-        if (array_key_exists($key, $this->variables)) {
-            return $this->variables[$key];
-        }
-        if ($this->parent) {
-            return $this->parent->get($key);
-        }
-        return NULL;
-    }
-
-    public function doPrint($text)
-    {
-        $this->buffer .= $text;
-    }
-
-    public function run()
-    {
-        $this->buffer = "";
-        $this->execStmts($this->stmts);
-        return $this->buffer;
-    }
-
-    public function execStmts(Array $stmts)
-    {
-        foreach ($stmts as $stmt) {
-            $stmt->execute($this);
-        }
-    }
-
-    public function getValue(Base $obj)
-    {
-        $obj = $obj->getValue($this);
-        while ($obj instanceof Base) {
-            $obj = $obj->getValue($this);
-        }
-        return $obj;
-    }
-
 }

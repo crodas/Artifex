@@ -93,7 +93,7 @@ EOF
 
     public function testIf() {
         $vm = Artifex::compile('
-        #* function cesar ($n)
+        #* function artifex ($n)
         #* if ($n == 1)
             1
         #* else if ($n == 2)
@@ -102,7 +102,7 @@ EOF
             don\'t know
         #* end end
         ');
-        $fnc = $vm->getFunction('cesar');
+        $fnc = $vm->getFunction('artifex');
         $this->assertEquals('1', trim($fnc(1)));
         $this->assertEquals('2', trim($fnc(2)));
         $this->assertEquals("don't know", trim($fnc(99)));
@@ -117,6 +117,7 @@ EOF
     }
         
 
+    // missing variable {{{
     /**
      *  @expectedException \RuntimeException
      */
@@ -133,7 +134,9 @@ class class__foo__ {
 EOF
         );
     }
+    // }}}
 
+    // define function {{{
     public function testDefineFunction() {
         $vm = Artifex::compile(<<<'EOF'
 #* function defineClass($foo, $methods)
@@ -156,7 +159,27 @@ EOF
         $this->assertTrue(is_callable($class, 'set1'));
         $this->assertTrue(is_callable($class, 'set2'));
     }
+    // }}}
 
+    // local defined function call {{{
+    public function testDefineExecLocalFunction() {
+        $namespace = safe_eval(Artifex::execute(<<<'EOF'
+#* foo("artifex", "rulz")
+#* function foo($foo, $method) 
+    class __foo__ {
+        function __method__() {
+        }
+    }
+#* end
+EOF
+        ));
+
+        $this->assertTrue(class_exists($namespace . '\\artifex'));
+        $this->assertTrue(is_callable($namespace . '\\artifex', 'rulz'));
+    }
+    // }}}
+
+    // scope of functions {{{
     public function testDefineScope() {
         $vm = Artifex::compile(<<<'EOF'
 #* $foo = "foo";
@@ -192,5 +215,6 @@ EOF
         $this->assertTrue(is_callable($class, 'set1'));
         $this->assertTrue(is_callable($class, 'set2'));
     }
+    // }}}
 
 }
