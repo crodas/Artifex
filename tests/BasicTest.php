@@ -115,6 +115,23 @@ EOF
     public function testStringConcat() {
         $this->assertEquals('foo bar test', Artifex::execute('#* print("foo ". "bar" . " test")'));
     }
+
+    public function testExpr() {
+        $expected = (5+4/(4-3)*4)+1;
+        $a = 5;
+        $b = 4;
+        $args = compact('expected', 'a', 'b');
+        $code = '#* if ($a+$b/($b-3)*$b >= $expected) print("foo ". "bar" . " test") end';
+        $this->assertEquals('foo bar test', Artifex::execute($code), $args);
+        $code = '#* if ((99%3) == 0 && false) print("foo ". "bar" . " test") end';
+        $this->assertEquals('foo bar test', Artifex::execute($code), $args);
+        $code = '#* if (true != false) print("foo ". "bar" . " test") end';
+        $this->assertEquals('foo bar test', Artifex::execute($code), $args);
+        $code = '#* if (not true == false) print("foo ". "bar" . " test") end';
+        $this->assertEquals('foo bar test', Artifex::execute($code), $args);
+        $code = '#* if (is_array([1,2,3])) print("foo ". "bar" . " test") end';
+        $this->assertEquals('foo bar test', Artifex::execute($code), $args);
+    }
         
 
     // missing variable {{{

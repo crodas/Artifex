@@ -16,6 +16,7 @@ class Tokenizer
         "end"     => Parser::T_END,
         "as"      => Parser::T_AS,
         "and"     => Parser::T_AND,
+        "not"     => Parser::T_NOT,
         "or"      => Parser::T_OR,
         "in"      => Parser::T_IN,
     );
@@ -40,6 +41,7 @@ class Tokenizer
         $map = array(
             "#*" => Parser::T_START,
             "*#" => Parser::T_START,
+            "&&" => Parser::T_AND,
             "->" => Parser::T_OBJ,
             "==" => Parser::T_EQ,
             "!=" => Parser::T_NE,
