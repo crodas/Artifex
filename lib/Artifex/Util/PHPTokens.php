@@ -162,13 +162,14 @@ class PHPTokens
         for($i=0; $i < $this->total; $i++) {
             switch ($tokens[$i]) {
             case '{':
+                $x = $i;
                 $this->revWhileNot(array(
                     T_FUNCTION, T_CLASS, T_NAMESPACE, T_IF, T_ELSE, 
                     T_WHILE, T_FOR, T_FOREACH, T_DO, T_ELSEIF, T_INTERFACE,
                     $trait
                 ));
                 $this->stack[] = $tokens[$i][0];
-                $this->WhileNot(array('{'));
+                $i = $x;
                 break;
             case '}':
                 array_pop($this->stack);
