@@ -144,6 +144,11 @@ class PHPTokens
         return $this->stack;
     }
 
+    public function getTokenType()
+    {
+        return $this->tokens[$this->offset][0];
+    }
+
     public function getToken()
     {
         return $this->tokens[$this->offset];
@@ -160,7 +165,11 @@ class PHPTokens
         $trait  = defined('T_TRAIT') ? T_TRAIT : -1; 
         $i = &$this->offset;
         for($i=0; $i < $this->total; $i++) {
-            switch ($tokens[$i]) {
+            $value = is_array($tokens[$i]) ? $tokens[$i][0] : $tokens[$i];
+            switch ($value) {
+            case T_CURLY_OPEN:
+                $this->stack[] = T_VARIABLE;
+                break;
             case '{':
                 $x = $i;
                 $this->revWhileNot(array(
@@ -172,10 +181,10 @@ class PHPTokens
                 $i = $x;
                 break;
             case '}':
-                array_pop($this->stack);
+                $tok = array_pop($this->stack);
                 break;
             }
-            $value = is_array($tokens[$i]) ? $tokens[$i][0] : $tokens[$i];
+
             if (isset($this->events[$value])) {
                 $x = $i;
                 foreach ($this->events[$value] as $callback) {
