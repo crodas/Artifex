@@ -151,6 +151,9 @@ class PHPTokens
 
     public function getToken()
     {
+        if (!array_key_exists($this->offset, $this->tokens)) {
+            return NULL;
+        }
         return $this->tokens[$this->offset];
     }
 
