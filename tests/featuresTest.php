@@ -35,41 +35,30 @@
   +---------------------------------------------------------------------------------+
 */
 
-class bugsTest extends \phpunit_framework_testcase
+class featuresTest extends \phpunit_framework_testcase
 {
-    public function testBugWithAssign()
+    /**
+     *  @expectedException \RuntimeException
+     */
+    public function testInvalidNumber()
     {
-        $classes = array("foo", "bar", "foobar");
-        $namespace = safe_eval(Artifex::execute(<<<'EOF'
-#* $classes = @$classes
-function xxx() {
-    return __classes__;
-}
+        Artifex::execute(<<<'EOF'
+#* $a = 5a;
 EOF
-        , compact('classes')));
-        $fnc = $namespace . '\\xxx';
-        $this->assertEquals($fnc(), $classes);
+        );
+    }
+
+    public function testEscapeString()
+    {
+        $this->assertEquals(Artifex::execute('#* print("foo\"bar")'), "foo\"bar");
     }
 
     /**
      *  @expectedException \RuntimeException
      */
-    public function testBugFunction() 
+    public function testInvalidReplace()
     {
-        Artifex::execute(<<<'EOF'
-#* function foo("foo", "bar")
-#* end
-EOF
-        );
-    }
-
-    public function testBugCompileEmptyFunction()
-    {
-        Artifex::execute(<<<'EOF'
-#* function foo()
-#* end
-EOF
-        );
-        $this->assertTrue(true);
+        $args = array('foo' => 'bar');
+        Artifex::execute("__args__", compact('args'));
     }
 }

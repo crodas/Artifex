@@ -6,10 +6,7 @@ use Artifex\Runtime;
 class Expr_If extends Base {
     public function Execute(Runtime $vm)
     {
-        $value = $this->args[0]->getValue($vm);
-        if ($value instanceof Base) {
-            $value = $value->getValue($vm);
-        }
+        $value = $vm->getValue($this->args[0]);
 
         if ($value) {
             $vm->execStmts($this->args[1]);

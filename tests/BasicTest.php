@@ -136,6 +136,8 @@ EOF
         $args = compact('expected', 'a', 'b');
         $code = '#* if ($a+$b/($b-3)*$b >= $expected) print("foo ". "bar" . " test") end';
         $this->assertEquals('foo bar test', Artifex::execute($code), $args);
+        $code = '#* if ($a+$b/($b-3)*$b+1 > $expected) print("foo ". "bar" . " test") end';
+        $this->assertEquals('foo bar test', Artifex::execute($code), $args);
         $code = '#* if ((99%3) == 0 && true) print("foo ". "bar" . " test") end';
         $this->assertEquals('foo bar test', Artifex::execute($code), $args);
         $code = '#* if (true != false) print("foo ". "bar" . " test") end';
@@ -212,8 +214,8 @@ EOF
     // scope of functions {{{
     public function testDefineScope() {
         $vm = Artifex::compile(<<<'EOF'
-#* $foo = "foo";
-#* $methods = [1, 2];
+#* $foo = "foo"
+#* $methods = [1, 2]
 #* function defineClass($foo, $methods)
 class __foo__ {
     #* foreach ($methods as $method) 

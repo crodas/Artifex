@@ -76,8 +76,8 @@ class Tokenizer
         $tokens = array();
         $status = self::IN_TEXT;
         $map = array(
-            "#*" => Parser::T_START,
-            "*#" => Parser::T_START,
+            "#*" => -1,
+            "*#" => -1,
             "&&" => Parser::T_AND,
             "->" => Parser::T_OBJ,
             "==" => Parser::T_EQ,
@@ -100,7 +100,6 @@ class Tokenizer
             "]"  => Parser::T_SUBSCR_CLOSE,
             ","  => Parser::T_COMMA,
             ":"  => Parser::T_COLON,
-            ";"  => Parser::T_SEMICOLON,
             "+"  => Parser::T_PLUS,
             "-"  => Parser::T_MINUS,
             "*"  => Parser::T_TIMES,
@@ -169,11 +168,11 @@ class Tokenizer
 
                 $parts = preg_split('/[^a-zA-Z0-9_.]/', substr($text, $i), 2);
                 if (trim($parts[0]) === "") { 
-                    throw new \Exception("Unexpected " . $text[$i]);
+                    throw new \RuntimeException("Unexpected " . $text[$i]);
                 }
                 if (preg_match("/^[0-9]/", $parts[0])) {
                     if (!preg_match("/^[0-9]+(.[0-9]+)?(e[0-9]+)?$/", $parts[0])) {
-                        throw new \Exception("invalid number " . $parts[0]);
+                        throw new \RuntimeException("invalid number " . $parts[0]);
                     }
                     $tokens[] = array(Parser::T_NUMBER, $parts[0] + 0, $line);
                 } else {

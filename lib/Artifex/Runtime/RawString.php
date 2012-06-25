@@ -10,12 +10,13 @@ class RawString extends Base
         $text = preg_replace_callback("/__([a-z][a-z0-9_]*)__/i", function($var) use ($vm) {
             $value = $vm->get($var[1]);
             if (is_null($value)) {
+                /* variable is not found, we ignore it */
                 return $var[0];
             }
             
-            $result = $value->getValue($vm);
-            if ($result instanceof Base) {
-                $result = $result->getValue($vm);
+            $result = $vm->getValue($value);
+            if (!is_scalar($result)) {
+                throw new \RuntimeException("Only scalar values may be replaced. Use @ to get the string representation.");
             }
             return $result;
         }, $this->args);

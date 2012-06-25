@@ -60,7 +60,7 @@ class Artifex
         $tokens = new Tokenizer($bytes);
         $parser = new Parser;
         foreach ($tokens->getAll() as $token) {
-            if ($token[0] == Parser::T_START) continue;
+            if ($token[0] == -1) continue;
             $parser->line = $token[2];
             $parser->doParse($token[0], $token[1]);
         }

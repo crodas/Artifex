@@ -79,11 +79,12 @@ use \Artifex\Runtime\Assign,
 
 start ::= body(A). { $this->body = A; }
 
-body(A) ::= body(B) code(C). { A = B; A[] = C; }
+body(A) ::= body(B) line(C). { A = B; A[] = C; }
 body(A) ::= . { A = array(); }
 
-code(A) ::= T_RAW_STRING(B). { A = new RawString(B); }
-code(A) ::= T_START code(B). { A = B; }
+line(A) ::= T_RAW_STRING(B). { A = new RawString(B); }
+line(A) ::= code(B). { A = B; }
+line(A) ::= code(B) T_NEW_LINE. { A = B; }
 
 /* foreach {{{ */
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(C) T_RPARENT body(X) T_END. { 
@@ -105,7 +106,7 @@ code(A) ::= T_FUNCTION T_ALPHA(B) T_LPARENT args(X) T_RPARENT body(Z) T_END . {
 /* }}} */
 
 /* assign {{{ */
-code(A) ::= variable(B) T_ASSIGN expr(C) T_SEMICOLON . { A = new Assign(B, C); }
+code(A) ::= variable(B) T_ASSIGN expr(C) . { A = new Assign(B, C); }
 /* }}} */
 
 /* function call {{{ */
