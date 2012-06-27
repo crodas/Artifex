@@ -74,6 +74,16 @@ class Artifex
         $vm->setContext($context);
         return $vm->run();
     }
+    
+    public static function load($file, $context = array())
+    {
+        if (!is_readable($file)) {
+            throw new \RuntimeException("Cannot read file {$file}");
+        }
+        $vm = self::compile(file_get_contents($file));
+        $vm->setContext($context);
+        return $vm;
+    }
 
     public static function registerAutoloader()
     {

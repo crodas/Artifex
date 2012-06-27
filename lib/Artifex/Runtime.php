@@ -50,6 +50,7 @@ use \Artifex\Runtime\Assign,
 
 class Runtime 
 {
+    protected $stack = array();
     protected $stmts;
     protected $parent;
     protected $variables = array();

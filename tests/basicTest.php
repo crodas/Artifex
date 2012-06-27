@@ -35,8 +35,10 @@
   +---------------------------------------------------------------------------------+
 */
 
-class BasicTest extends \phpunit_framework_testcase
+class basicTest extends \phpunit_framework_testcase
 {
+
+    // loop {{{
     public function testLoop() {
         $output = Artifex::execute(<<<EOF
 #* foreach ([1,2,3,4,5] as \$id => \$foo)
@@ -52,8 +54,10 @@ EOF
 ");
         
     }
+    // }}}
 
-    public function testObject() {
+    // loop key - value {{{
+    public function testLoopKeyValue() {
         $output = Artifex::execute(<<<EOF
 #* foreach ({foo:1,bar:2} as \$id => \$foo)
     hola __id__ __foo__
@@ -65,7 +69,9 @@ EOF
 ");
         
     }
+    // }}}
 
+    // testReplace {{{
     public function testReplace() {
         $methods = array();
         for ($i=0; $i < 10; $i++) {
@@ -90,7 +96,9 @@ EOF
             }
         }
     }
+    // }}}
 
+    // testSave {{{
     public function testSave() 
     {
         $file = "/tmp/foo";
@@ -103,7 +111,9 @@ EOF
         fclose($fp);
         $this->assertEquals($content, file_get_contents($file));
     }
+    // }}}
 
+    // if {{{
     public function testIf() {
         $vm = Artifex::compile('
         #* function artifex ($n)
@@ -120,15 +130,21 @@ EOF
         $this->assertEquals('2', trim($fnc(2)));
         $this->assertEquals("don't know", trim($fnc(99)));
     }
+    // }}}
 
+    // exec {{{
     public function testFunctionCall() {
         $this->assertEquals(time(), Artifex::execute('#* print(time())'));
     }
+    // }}}
 
+    // concat {{{
     public function testStringConcat() {
         $this->assertEquals('foo bar test', Artifex::execute('#* print("foo ". "bar" . " test")'));
     }
+    // }}}
 
+    // expr {{{
     public function testExpr() {
         $expected = (5+4/(4-3)*4)+1;
         $a = 5;
@@ -147,8 +163,8 @@ EOF
         $code = '#* if (is_array([1,2,3])) print("foo ". "bar" . " test") end';
         $this->assertEquals('foo bar test', Artifex::execute($code), $args);
     }
+    // }}}
         
-
     // missing variable {{{
     /**
      *  @expectedException \RuntimeException

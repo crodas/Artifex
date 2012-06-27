@@ -8,6 +8,8 @@
  */
 
 
+
+
 spl_autoload_register(function ($class) {
     /*
         This array has a map of (class => file)
@@ -27,10 +29,12 @@ spl_autoload_register(function ($class) {
   'artifex\\runtime\\assign' => '/Runtime/Assign.php',
   'artifex\\runtime\\expr_if' => '/Runtime/Expr/If.php',
   'artifex\\runtime\\expr_foreach' => '/Runtime/Expr/Foreach.php',
+  'artifex\\runtime\\whitespace' => '/Runtime/Whitespace.php',
   'artifex\\tokenizer' => '/Tokenizer.php',
   'artifex_yytoken' => '/Parser.php',
   'artifex_yystackentry' => '/Parser.php',
   'artifex_parser' => '/Parser.php',
+  'artifex\\util\\phptokens' => '/Util/PHPTokens.php',
   'artifex\\runtime' => '/Runtime.php',
 );
     // }}}
@@ -73,6 +77,10 @@ spl_autoload_register(function ($class) {
   array (
     0 => 'artifex\\runtime\\base',
   ),
+  'artifex\\runtime\\whitespace' => 
+  array (
+    0 => 'artifex\\runtime\\base',
+  ),
 );
     // }}}
 
@@ -80,13 +88,13 @@ spl_autoload_register(function ($class) {
     if (isset($classes[$class])) {
         if (!empty($deps[$class])) {
             foreach ($deps[$class] as $zclass) {
-                if (!class_exists($zclass, false) && !interface_exists($zclass, false)) {
+if (!class_exists($zclass, false)) {
                     require __DIR__  . $classes[$zclass];
                 }
             }
         }
 
-        if (!class_exists($class, false) && !interface_exists($class, false)) {
+if (!class_exists($class, false)) {
             require __DIR__  . $classes[$class];
         }
         return true;

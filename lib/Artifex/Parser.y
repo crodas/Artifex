@@ -43,6 +43,7 @@ use \Artifex\Runtime\Assign,
     \Artifex\Runtime\Expr_If,
     \Artifex\Runtime\Expr_Foreach,
     \Artifex\Runtime\RawString,
+    \Artifex\Runtime\Whitespace,
     \Artifex\Runtime\Term,
     \Artifex\Runtime\DefFunction,
     \Artifex\Runtime\Variable;
@@ -79,12 +80,21 @@ use \Artifex\Runtime\Assign,
 
 start ::= body(A). { $this->body = A; }
 
-body(A) ::= body(B) line(C). { A = B; A[] = C; }
+body(A) ::= body(B) line(C). {
+    $last = end(B);
+    if ($last) {
+        $last->setNext(C);
+        C->setPrev($last);
+    }
+    B[] = C; 
+    A = B; 
+}
 body(A) ::= . { A = array(); }
 
 line(A) ::= T_RAW_STRING(B). { A = new RawString(B); }
 line(A) ::= code(B). { A = B; }
 line(A) ::= code(B) T_NEW_LINE. { A = B; }
+line(A) ::= T_WHITESPACE(x). { A = new Whitespace(x); }
 
 /* foreach {{{ */
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(C) T_RPARENT body(X) T_END. { 

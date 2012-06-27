@@ -112,14 +112,22 @@ class Tokenizer
                 if ($pos === false) {
                     $pos = $len;
                 }
-                $status  = self::IN_CODE;
-                $raw_str = substr($text, $i, $pos - $i);
-                if (trim($raw_str, " \t\r") == "") {
+                $status    = self::IN_CODE;
+                $raw_str   = substr($text, $i, $pos - $i);
+                $clean_str = rtrim($raw_str, " \t\r");
+
+                if (!empty($clean_str)) {
+                    $tokens[] = array(Parser::T_RAW_STRING, $clean_str, $line);
+                } else {
                     $i--;
-                    continue;
                 }
 
-                $tokens[] = array(Parser::T_RAW_STRING, rtrim($raw_str, " \t\r"), $line);
+                if ($raw_str !== $clean_str) {
+                    // whitespace tokenizer. Basically it used to remember the last
+                    // identation stage.
+                    $tokens[]  = array(Parser::T_WHITESPACE, substr($raw_str, strlen($clean_str)), $line);
+                }
+
                 $line += substr_count($raw_str, "\n");
                 $i = $pos-1;
                 continue;

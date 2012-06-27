@@ -40,7 +40,7 @@ namespace Artifex\Runtime;
 use Artifex\Runtime,
     \Artifex\Runtime\Variable;
 
-class DefFunction 
+class DefFunction extends Base
 {
     protected $name;
     protected $args;
