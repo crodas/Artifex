@@ -93,15 +93,26 @@ class Runtime
     }
 
     public function functionExists($name) {
-        return array_key_exists($name, $this->functions);
+        return !is_null($this->getFunctionObject($name));
+    }
+
+    protected function getFunctionObject($name)
+    {
+        $name = strtolower($name);
+        if (array_key_exists($name, $this->functions)) {
+            return $this->functions[$name];
+        }
+        if ($this->parent) {
+            return $this->parent->getFunctionObject($name);
+        }
+        return NULL;
     }
 
     public function getFunction($name) {
-        $name = strtolower($name);
-        if (!array_key_exists($name, $this->functions)) {
+        $func = $this->getFunctionObject($name);
+        if (is_null($func)) {
             throw new \RuntimeException("Can't find function {$name}");
         } 
-        $func = $this->functions[$name];
         $vm   = $this;
         return function() use ($func, $vm) {
             return $func->execute($vm, func_get_args());

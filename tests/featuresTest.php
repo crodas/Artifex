@@ -61,4 +61,14 @@ EOF
         $args = array('foo' => 'bar');
         Artifex::execute("__args__", compact('args'));
     }
+
+    public function testRecursive()
+    {
+        $vm = Artifex::load(__DIR__ . "/fixture/recursive.tpl.php");
+        $output = $vm->run();
+        $this->assertTrue(strpos($output, "method1") > 0);
+        $this->assertTrue(strpos($output, "method2") > 0);
+        $this->assertTrue(strpos($output, "method3") > 0);
+        $this->assertTrue(strpos($output, "method4") > 0);
+    }
 }

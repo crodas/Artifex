@@ -50,8 +50,14 @@ class Expr extends Base
         case '>':
             $value = $vm->getValue($args[1]) > $vm->getValue($args[2]);
             break;
+        case '<':
+            $value = $vm->getValue($args[1]) < $vm->getValue($args[2]);
+            break;
         case '>=':
             $value = $vm->getValue($args[1]) >= $vm->getValue($args[2]);
+            break;
+        case '<=':
+            $value = $vm->getValue($args[1]) <= $vm->getValue($args[2]);
             break;
         case '*':
             $value = $vm->getValue($args[1]) * $vm->getValue($args[2]);
