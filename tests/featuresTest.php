@@ -62,13 +62,25 @@ EOF
         Artifex::execute("__args__", compact('args'));
     }
 
-    public function testRecursive()
+    public static function fixturesProvider()
     {
-        $vm = Artifex::load(__DIR__ . "/fixture/recursive.tpl.php");
-        $output = $vm->run();
-        $this->assertTrue(strpos($output, "method1") > 0);
-        $this->assertTrue(strpos($output, "method2") > 0);
-        $this->assertTrue(strpos($output, "method3") > 0);
-        $this->assertTrue(strpos($output, "method4") > 0);
+        $args = array();
+        foreach (glob(__DIR__ . "/fixture/compare/*.tpl.php") as $file) {
+            $expected = str_replace(".tpl.", ".out.", $file);
+            if (!is_file($expected)) {
+                continue;
+            }
+            $args[] = array($file, file_get_contents($expected));
+        }
+        return $args;
+    }
+
+    /**
+     *  @dataProvider fixturesProvider
+     */
+    public function testFixtures($file, $expected)
+    {
+        $vm = Artifex::load($file);
+        $this->assertEquals($expected, $vm->run());
     }
 }

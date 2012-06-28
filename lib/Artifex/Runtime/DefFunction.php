@@ -45,6 +45,7 @@ class DefFunction extends Base
     protected $name;
     protected $args;
     protected $code;
+    protected static $fixedXDebug = false;
 
     public function __construct($name, Array $args, Array $code)
     {
@@ -62,10 +63,35 @@ class DefFunction extends Base
     {
         return $this->name;
     }
+
+    /**
+     *  If XDebug is installed it might give problems if the 
+     *  templates to process has recursive function calls.
+     *
+     *  This function attempts to set a higher value for xdebug's
+     *  max nesting levels.
+     *  
+     *  If XDebug is not found, then nothing happens.
+     *
+     *  @return void
+     */
+    public function fixXdebugRecursion()
+    {
+        if (self::$fixedXDebug) {
+            return;
+        }
+        $level   = 2000;
+        $current = ini_get('xdebug.max_nesting_level');
+        if (is_numeric($current) && $current < $level) {
+            ini_set('xdebug.max_nesting_level', 2000);
+        }
+        self::$fixedXDebug = true;
+    }
     
     public function execute(Runtime $vm, Array $args = NULL) 
     {
         $fncargs = array();
+        self::fixXDebugRecursion();
         foreach ($this->args as $id => $arg) {
             if (empty($args[$id])) break;
             $fncargs[current($arg->getNative())] = $args[$id];

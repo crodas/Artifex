@@ -71,6 +71,11 @@ class Runtime
         $this->parent = $vm;
     }
 
+    public function getParentVm()
+    {
+        return $this->parent;
+    }
+
     public function setContext(Array $context)
     {
         foreach($context as $key => $value) {
