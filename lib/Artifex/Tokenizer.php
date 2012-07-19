@@ -146,7 +146,19 @@ class Tokenizer
                 for ($e = $i+1; $e < $len; $e++) {
                     switch ($text[$e]) {
                     case "\\":
-                        $str .= $text[++$e];
+                        $letter = $text[++$e];
+                        switch ($letter) {
+                        case "n":
+                            $letter = "\n";
+                            break;
+                        case "t":
+                            $letter = "\t";
+                            break;
+                        case "r":
+                            $letter = "\r";
+                            break;
+                        }
+                        $str .= $letter;
                         break;
                     case "'": case '"':
                         if ($text[$e] == $end) {
