@@ -73,7 +73,7 @@ class Exec extends Base
         $this->printIndented($content, $vm);
     }
 
-    public function getValue(Runtime $vm) 
+    public function getValue(Runtime $vm, $doPrint = true) 
     {
         $args = array();
         foreach ($this->args as $arg) {
@@ -103,22 +103,24 @@ class Exec extends Base
         }
 
         if ($vm->functionExists($function)) {
-            $function = $vm->getFunction($function, $isLocal);
-            if ($isLocal) {
-                // if the function is indeed a local function
-                // (and not defined in the php side) then
-                // we should print and leave
-                $output = call_user_func_array($function , $args);
-                $this->printIndented($output, $vm);
-                return;
-            }
+            $function = $vm->getFunction($function);
         }
 
         if (!is_callable($function)) {
             throw new \RuntimeException("{$function} is not a function");
         }
 
-        return call_user_func_array($function , $args);
+        $output = call_user_func_array($function , $args);
+
+        if ($doPrint) {
+            // if the function is indeed a local function
+            // (and not defined in the php side) then
+            // we should print and leave
+            $this->printIndented($output, $vm);
+            return;
+        }
+
+        return $output;
     }
 
     public function Execute(Runtime $vm)

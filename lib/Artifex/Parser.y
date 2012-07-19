@@ -99,10 +99,12 @@ line(A) ::= T_WHITESPACE(x). { A = new Whitespace(x); }
 /* foreach {{{ */
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(C) T_RPARENT body(X) T_END. { 
     A = new Expr_Foreach(B, C, NULL, X); 
+    A->setChild(X);
 }
 
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(E) T_DOUBLE_ARROW variable(C) T_RPARENT body(X) T_END . {
     A = new Expr_Foreach(B, C, E, X);
+    A->setChild(X);
 }
 
 foreach_source(A) ::= variable(B) . { A = B; }
@@ -113,6 +115,7 @@ foreach_source(A) ::= json(B) . { A = new Term(B); }
 /* function definition {{{ */
 code(A) ::= T_FUNCTION T_ALPHA(B) T_LPARENT args(X) T_RPARENT body(Z) T_END . {
     A = new DefFunction(B, X, Z);
+    A->setChild(Z);
 }
 /* }}} */
 
@@ -135,10 +138,12 @@ fnc_call(A) ::= variable(B) T_LPARENT args(X) T_RPARENT . {
 code(A) ::= if(B) . { A = B; }
 if(A) ::= T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . {
     A = new Expr_If(X, Y, Z);
+    A->setChild(Y);
 }
 
 else_if(A) ::= T_ELSE T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . { 
     A = new Expr_If(X, Y, Z); 
+    A->setChild(Y);
 }
 else_if(A) ::= T_ELSE body(X) T_END . { 
     A = X; 

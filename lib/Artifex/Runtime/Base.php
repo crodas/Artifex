@@ -43,6 +43,7 @@ class Base
     protected $args;
     protected $prev;
     protected $next;
+    protected $parent;
 
     public function __construct() 
     {
@@ -64,6 +65,18 @@ class Base
     public function setPrev(Base $a)
     {
         $this->prev = $a;
+    }
+
+    public function setChild(Array $child)
+    {
+        foreach ($child as $c) {
+            $c->setParent($this);
+        }
+    }
+
+    public function setParent(Base $a)
+    {
+        $this->parent = $a;
     }
 }
 

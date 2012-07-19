@@ -222,11 +222,11 @@ class Runtime
         }
     }
 
-    public function getValue(Base $obj)
+    public function getValue(Base $obj, $extra = NULL)
     {
-        $obj = $obj->getValue($this);
+        $obj = $obj->getValue($this, $extra);
         while ($obj instanceof Base) {
-            $obj = $obj->getValue($this);
+            $obj = $obj->getValue($this, $extra);
         }
         return $obj;
     }
