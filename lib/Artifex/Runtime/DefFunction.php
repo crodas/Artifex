@@ -88,7 +88,7 @@ class DefFunction extends Base
         self::$fixedXDebug = true;
     }
     
-    public function execute(Runtime $vm, Array $args = NULL) 
+    public function body(Runtime $vm, Array $args = NULL) 
     {
         $fncargs = array();
         self::fixXDebugRecursion();

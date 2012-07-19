@@ -133,6 +133,7 @@ class Runtime
 
     public function getFunction($name, &$isLocal = NULL) {
         $func = $this->getFunctionObject($name);
+        $isLocal = false;
         if (is_null($func)) {
             throw new \RuntimeException("Can't find function {$name}");
         } 
@@ -144,7 +145,7 @@ class Runtime
         $vm = $this;
         $isLocal = true;
         return function() use ($func, $vm) {
-            return $func->execute($vm, func_get_args());
+            return $func->body($vm, func_get_args());
         };
     }
 

@@ -82,11 +82,11 @@ class Exec extends Base
             $args[] = $val;
         }
 
-        if (is_callable(array($this, 'function' . $this->function))) {
+        $function = $this->function;
+        if (is_string($function) && is_callable(array($this, 'function' . $this->function))) {
             return $this->{'function' . $this->function}($args, $vm);
         }
 
-        $function = $this->function;
         if ($function instanceof Variable) {
             // call methods
             if ($function->isObject()) {
