@@ -70,7 +70,7 @@ class Exec extends Base
     public function functionInclude(Array $args, Runtime $vm)
     {
         $content = $vm->doInclude($args[0]);
-        $this->printedIdented($content, $vm);
+        $this->printIndented($content, $vm);
     }
 
     public function getValue(Runtime $vm) 
