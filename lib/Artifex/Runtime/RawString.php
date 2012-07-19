@@ -50,6 +50,9 @@ class RawString extends Base
             }
             
             $result = $vm->getValue($value);
+            if (is_object($result) && is_callable(array($result, '__toString'))) {
+                $result = (string)$result;
+            }
             if (!is_scalar($result)) {
                 throw new \RuntimeException("Only scalar values may be replaced. Use @ to get the string representation.");
             }

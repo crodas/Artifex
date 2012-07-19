@@ -106,6 +106,7 @@ code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(E) T_DOUBLE_ARRO
 }
 
 foreach_source(A) ::= variable(B) . { A = B; }
+foreach_source(A) ::= fnc_call(B) . { A = B; }
 foreach_source(A) ::= json(B) . { A = new Term(B); }
 /* }}} */
 
@@ -173,7 +174,7 @@ args(X) ::= . { X = array(); }
 variable(A) ::= T_DOLLAR var(B) . { A = new Variable(B); }
 
 var(A) ::= var(B) T_OBJ var(C) . { A = array_merge(B, C); }
-var(A) ::= var(B) T_CURLY_OPEN expr(C) T_CURLY_CLOSE . { A = B ; A[] = C; }
+var(A) ::= var(B) T_SUBSCR_OPEN expr(C) T_SUBSCR_CLOSE . { A = B ; A[] = C; }
 var(A) ::= T_ALPHA(B) . { A = array(B);}
 /* }}} */
 
@@ -192,8 +193,10 @@ json(A) ::= T_SUBSCR_OPEN json_arr(B) T_SUBSCR_CLOSE. { A = B; }
 
 json_obj(A) ::= json_obj(B) T_COMMA json_obj(C). { A = array_merge(B, C); }
 json_obj(A) ::= term(B) T_COLON expr(C) . { A = array(B => C); } 
+json_obj(A) ::= . { A = array(); } 
 
 json_arr(X) ::= json_arr(A) T_COMMA expr(B) .  { X = A; X[] = B; }
 json_arr(A) ::= expr(B). { A = array(B); }
+json_arr(A) ::= . { A = array(); }
 /* }}} */
 

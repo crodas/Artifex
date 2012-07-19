@@ -64,10 +64,12 @@ class Expr_Foreach extends Base
             if (is_null($val)) {
                 throw new \RuntimeException("Cannot find variable " . $source );
             }
-            $source = $val;
+            $source = $vm->getValue($val);
+        } else {
+            $source = $vm->getValue($source);
         }
 
-        foreach ($vm->getValue($source) as $zkey => $zvalue) {
+        foreach ($source as $zkey => $zvalue) {
             if ($key) {
                 $vm->define($key, new Term($zkey));
             }

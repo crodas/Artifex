@@ -66,6 +66,12 @@ class Runtime
         $this->stmts = $stmts;
     }
 
+    public function registerFunction($name, \Closure $closure) 
+    {
+        $this->functions[$name] = $closure;
+        return $this;
+    }
+
     public function setParentVm(Runtime $vm)
     {
         $this->parent = $vm;
@@ -76,11 +82,21 @@ class Runtime
         return $this->parent;
     }
 
+    public function doInclude($tpl)
+    {
+        $file = stream_resolve_include_path($tpl);
+        if (empty($file)) {
+            throw new \RuntimeException("Cannot include template {$tpl}");
+        }
+        return \Artifex::load($file, $this->variables)->run();
+    }
+
     public function setContext(Array $context)
     {
         foreach($context as $key => $value) {
             $this->define($key, $value);
         }
+        return $this;
     }
 
     public function define($key, $value)
@@ -95,6 +111,8 @@ class Runtime
         }
 
         $this->variables[$key] = $value instanceof Term ? $value : new Term($value);
+
+        return $this;
     }
 
     public function functionExists($name) {
@@ -113,12 +131,18 @@ class Runtime
         return NULL;
     }
 
-    public function getFunction($name) {
+    public function getFunction($name, &$isLocal = NULL) {
         $func = $this->getFunctionObject($name);
         if (is_null($func)) {
             throw new \RuntimeException("Can't find function {$name}");
         } 
-        $vm   = $this;
+
+        if ($func instanceof \Closure) {
+            return $func;
+        }
+
+        $vm = $this;
+        $isLocal = true;
         return function() use ($func, $vm) {
             return $func->execute($vm, func_get_args());
         };
@@ -132,14 +156,49 @@ class Runtime
         if (is_array($key) && count($key) == 1) {
             $key = $key[0];
         } else if (is_array($key)) {
-            throw new \RuntimeException("I'm not yet implemented");
+            $value = $this->get($key[0]);
+            if (empty($value)) {
+                throw new \RuntimeException("Undefined variable {$key[0]}");
+            }
+
+            $value = $value->getValue($this);
+
+            for ($i=1; $i < count($key); $i++) {
+                $part = $this->getValue($key[$i]);
+                try {
+                    if (!is_scalar($part)) {
+                        $value = NULL;
+                        break;
+                    }
+                    if (is_array($value)) {
+                        if (!array_key_exists($part, $value)) {
+                            throw new \Exception;
+                        }
+                        $value = $value[$part];
+                    } else if (is_object($value)) {
+                        if (!class_property_exists($part, $value)) {
+                            throw new \Exception;
+                        }
+                        $value = $value->$part;
+                    } else {
+                        throw new \Exception;
+                    }
+                } catch (\Exception $e) {
+                    $value = NULL;
+                    break;
+                }
+            }
+            return $value;
         }
+
         if (array_key_exists($key, $this->variables)) {
             return $this->variables[$key];
         }
+
         if ($this->parent) {
             return $this->parent->get($key);
         }
+
         return NULL;
     }
 

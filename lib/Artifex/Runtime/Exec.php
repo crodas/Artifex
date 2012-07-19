@@ -50,6 +50,29 @@ class Exec extends Base
         $this->args     = $arguments;
     }
 
+    public function printIndented($output, Runtime $vm)
+    {
+        if  ($this->prev instanceof Whitespace) {
+            $indent = $vm->getValue($this->prev);
+            $lines  = array_map(function($line) use ($indent) {
+                return $indent . $line;
+            }, explode("\n", rtrim($output, "\n")));
+            $output = implode("\n", $lines) . "\n";
+        }
+        $vm->doPrint($output);
+    }
+ 
+    public function functionPrint(Array $args, Runtime $vm)
+    {
+        return $vm->doPrint($args[0]);
+    }
+
+    public function functionInclude(Array $args, Runtime $vm)
+    {
+        $content = $vm->doInclude($args[0]);
+        $this->printedIdented($content, $vm);
+    }
+
     public function getValue(Runtime $vm) 
     {
         $args = array();
@@ -58,24 +81,43 @@ class Exec extends Base
             $val = $vm->getValue($arg);
             $args[] = $val;
         }
-        if (strtolower($this->function) == "print") {
-            return $vm->doPrint($args[0]);
+
+        if (is_callable(array($this, 'function' . $this->function))) {
+            return $this->{'function' . $this->function}($args, $vm);
         }
 
         $function = $this->function;
-        if ($vm->functionExists($function)) {
-            $function = $vm->getFunction($function);
-            $output = call_user_func_array($function , $args);
-            if  ($this->prev instanceof Whitespace) {
-                $indent = $vm->getValue($this->prev);
-                $lines  = array_map(function($line) use ($indent) {
-                    return $indent . $line;
-                }, explode("\n", rtrim($output, "\n")));
-                $output = implode("\n", $lines) . "\n";
+        if ($function instanceof Variable) {
+            // call methods
+            if ($function->isObject()) {
+                $object = $vm->getValue($function->getParent());
+                $method = $function->getPart(-1);
+                if (!is_callable(array($object, $method))) {
+                    throw new \RuntimeException(get_class($object) . '::' . $method . ' is not callable');
+                }
+                return $object->$method();
+            } else {
+                // $foo();
+                $function = $vm->getValue($function);
             }
-            $vm->doPrint($output);
-            return;
         }
+
+        if ($vm->functionExists($function)) {
+            $function = $vm->getFunction($function, $isLocal);
+            if ($isLocal) {
+                // if the function is indeed a local function
+                // (and not defined in the php side) then
+                // we should print and leave
+                $output = call_user_func_array($function , $args);
+                $this->printIndented($output, $vm);
+                return;
+            }
+        }
+
+        if (!is_callable($function)) {
+            throw new \RuntimeException("{$function} is not a function");
+        }
+
         return call_user_func_array($function , $args);
     }
 

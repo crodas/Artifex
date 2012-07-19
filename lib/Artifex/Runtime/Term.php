@@ -52,4 +52,9 @@ class Term extends Base
         return $this->value;
     }
 
+    public function __toString()
+    {
+       return var_export($this->value, true);
+    }
+
 }
