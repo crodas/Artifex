@@ -61,6 +61,16 @@ class Exec extends Base
         }
         $vm->doPrint($output);
     }
+
+    public function functionEmpty(Array $args, Runtime $vm)
+    {
+        if (count($args) != 1) {
+            throw new \RuntimeException("empty expects 1 argument");
+            throw new \RuntimeException("empty expects 1 argument");
+        }
+
+        return empty($args[0]);
+    }
  
     public function functionPrint(Array $args, Runtime $vm)
     {

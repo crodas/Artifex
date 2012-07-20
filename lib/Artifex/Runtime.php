@@ -88,7 +88,10 @@ class Runtime
         if (empty($file)) {
             throw new \RuntimeException("Cannot include template {$tpl}");
         }
-        return \Artifex::load($file, $this->variables)->run();
+        $vm  = \Artifex::load($file, $this->variables);
+        $fnc = array_merge($this->functions, $vm->functions);
+        $vm->functions = $fnc;
+        return $vm->run();
     }
 
     public function setContext(Array $context)
