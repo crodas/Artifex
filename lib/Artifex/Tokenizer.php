@@ -77,6 +77,7 @@ class Tokenizer
         $tokens = array();
         $status = self::IN_TEXT;
         $map = array(
+            "//" => -1,
             "#*!" => -1,
             "#*" => -1,
             "*#" => -1,
@@ -183,10 +184,19 @@ class Tokenizer
                 for($e=3; $e >= 1; $e--) {
                     if (isset($map[substr($text, $i, $e)])) {
                         $token = substr($text, $i, $e);
-                        if ($token == "*#") {
+                        switch ($token) {
+                        case '//':
+                            $pos = strpos($text, "\n", $i);
+                            if ($pos == false) {
+                                $pos = $len;
+                            }
+                            $i = $pos - 1;
+                            continue 3;
+
+                        case '*#':
                             $i += $e - 1;
                             $status = self::IN_TEXT;
-                            continue 2;
+                            continue 3;
                         }
                         $tokens[] = Array($map[$token], $token, $line);
                         $i += $e - 1;
