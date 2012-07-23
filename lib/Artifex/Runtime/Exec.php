@@ -105,7 +105,7 @@ class Exec extends Base
                 if (!is_callable(array($object, $method))) {
                     throw new \RuntimeException(get_class($object) . '::' . $method . ' is not callable');
                 }
-                return $object->$method();
+                return call_user_func_array(array($object, $method), $args);
             } else {
                 // $foo();
                 $function = $vm->getValue($function);

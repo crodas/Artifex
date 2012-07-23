@@ -88,6 +88,10 @@ class Expr extends Base
         case '&&':
             $value = $args[1] && $args[2];
             break;
+        case 'or':
+        case '||':
+            $value = $args[1] || $args[2];
+            break;
         case '!=':
             $value = $args[1] != $args[2];
             break;

@@ -168,19 +168,21 @@ class Runtime
             $value = $value->getValue($this);
 
             for ($i=1; $i < count($key); $i++) {
-                $part = $this->getValue($key[$i]);
+                $part = $key[$i] instanceof Base ? $this->getValue($key[$i]) : $key[$i];
                 try {
                     if (!is_scalar($part)) {
                         $value = NULL;
                         break;
                     }
-                    if (is_array($value)) {
+                    if (is_array($value) || (is_object($value) && $value instanceof \ArrayAccess)) {
                         if (!array_key_exists($part, $value)) {
-                            throw new \Exception;
+                            if (!is_object($value) || !$value->offsetExists($part)) {
+                                throw new \Exception;
+                            }
                         }
                         $value = $value[$part];
                     } else if (is_object($value)) {
-                        if (!class_property_exists($part, $value)) {
+                        if (!property_exists($value, $part)) {
                             throw new \Exception;
                         }
                         $value = $value->$part;
