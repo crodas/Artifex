@@ -82,11 +82,24 @@ class Runtime
         return $this->parent;
     }
 
+    public function setPwd($dir)
+    {
+        if (!is_dir($dir)) {
+            throw new \RuntimeException("{$dir} is not a directory");
+        }
+        $this->pwd = $dir;
+        return $this;
+    }
+
     public function doInclude($tpl)
     {
-        $file = stream_resolve_include_path($tpl);
-        if (empty($file)) {
-            throw new \RuntimeException("Cannot include template {$tpl}");
+        if (is_file($this->pwd . '/' . $tpl)) {
+            $file = $this->pwd . '/' . $tpl;
+        } else {
+            $file = stream_resolve_include_path($tpl);
+            if (empty($file)) {
+                throw new \RuntimeException("Cannot include template {$tpl}");
+            }
         }
         $vm  = \Artifex::load($file, $this->variables);
         $fnc = array_merge($this->functions, $vm->functions);

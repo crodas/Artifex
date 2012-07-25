@@ -59,12 +59,25 @@ class Base
 
     public function setNext(Base $a)
     {
+        if ($a === $this) return;
         $this->next = $a;
     }
 
     public function setPrev(Base $a)
     {
+        if ($a === $this) return;
         $this->prev = $a;
+    }
+
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+
+    public function getPrev()
+    {
+        return $this->prev;
     }
 
     public function setChild(Array $child)

@@ -40,6 +40,20 @@ use Artifex\Runtime;
 
 class RawString extends Base
 {
+    protected $args;
+    protected $isString;
+
+    public function __construct($string, $isString = false)
+    {
+        $this->args = $string;
+        $this->isString = $isString;
+    }
+
+    public function isString()
+    {
+        return $this->isString;
+    }
+
     public function execute(Runtime $vm)
     {
         $text = preg_replace_callback("/__(@?[a-z][a-z0-9_]*)__/i", function($var) use ($vm) {
@@ -65,8 +79,16 @@ class RawString extends Base
             if (!is_scalar($result)) {
                 throw new \RuntimeException("Only scalar values may be replaced. Use @ to get the string representation.");
             }
+
             return $result;
         }, $this->args);
+
+        if ($this->isString()) {
+            $prev = $this;
+            while ($prev->getParent()) {
+                $prev = $prev->getParent();
+            }
+        }
 
         $vm->doPrint($text);
     }

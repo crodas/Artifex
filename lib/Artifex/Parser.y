@@ -94,7 +94,7 @@ body(A) ::= . { A = array(); }
 line(A) ::= T_RAW_STRING(B). { A = new RawString(B); }
 line(A) ::= code(B). { A = B; }
 line(A) ::= code(B) T_NEW_LINE. { A = B; }
-line(A) ::= T_STRING(B) . { A = new RawString(B); }
+line(A) ::= T_STRING(B) . { A = new RawString(B, true); }
 line(A) ::= T_WHITESPACE(x). { A = new Whitespace(x); }
 
 /* foreach {{{ */
