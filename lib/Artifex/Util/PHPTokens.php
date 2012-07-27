@@ -95,7 +95,7 @@ class PHPTokens
                 return $this;
             }
         }
-        throw new \RuntimeException("Cannot find any of " . print_r($searchTokens, true));
+        throw new \RuntimeException("{revWhileNot} Cannot find any of " . print_r($searchTokens, true));
     }
 
     public function moveWhile(Array $searchTokens)
@@ -125,7 +125,7 @@ class PHPTokens
                 return $this;
             }
         }
-        throw new \RuntimeException("Cannot find any of " . print_r($searchTokens, true));
+        throw new \RuntimeException("{moveWhileNot} Cannot find any of " . print_r($searchTokens, true));
     }
 
     public function move($inc = 1)
@@ -178,7 +178,7 @@ class PHPTokens
                 $this->revWhileNot(array(
                     T_FUNCTION, T_CLASS, T_NAMESPACE, T_IF, T_ELSE, 
                     T_WHILE, T_FOR, T_FOREACH, T_DO, T_ELSEIF, T_INTERFACE,
-                    $trait
+                    T_TRY, T_CATCH, $trait
                 ));
                 $this->stack[] = $tokens[$i][0];
                 $i = $x;
