@@ -66,9 +66,45 @@ class Runtime
         $this->stmts = $stmts;
     }
 
+    public function registerFunction($name, \Closure $closure) 
+    {
+        $this->functions[$name] = $closure;
+        return $this;
+    }
+
     public function setParentVm(Runtime $vm)
     {
         $this->parent = $vm;
+    }
+
+    public function getParentVm()
+    {
+        return $this->parent;
+    }
+
+    public function setPwd($dir)
+    {
+        if (!is_dir($dir)) {
+            throw new \RuntimeException("{$dir} is not a directory");
+        }
+        $this->pwd = $dir;
+        return $this;
+    }
+
+    public function doInclude($tpl)
+    {
+        if (is_file($this->pwd . '/' . $tpl)) {
+            $file = $this->pwd . '/' . $tpl;
+        } else {
+            $file = stream_resolve_include_path($tpl);
+            if (empty($file)) {
+                throw new \RuntimeException("Cannot include template {$tpl}");
+            }
+        }
+        $vm  = \Artifex::load($file, $this->variables);
+        $fnc = array_merge($this->functions, $vm->functions);
+        $vm->functions = $fnc;
+        return $vm->run();
     }
 
     public function setContext(Array $context)
@@ -76,6 +112,7 @@ class Runtime
         foreach($context as $key => $value) {
             $this->define($key, $value);
         }
+        return $this;
     }
 
     public function define($key, $value)
@@ -90,21 +127,41 @@ class Runtime
         }
 
         $this->variables[$key] = $value instanceof Term ? $value : new Term($value);
+
+        return $this;
     }
 
     public function functionExists($name) {
-        return array_key_exists($name, $this->functions);
+        return !is_null($this->getFunctionObject($name));
     }
 
-    public function getFunction($name) {
+    protected function getFunctionObject($name)
+    {
         $name = strtolower($name);
-        if (!array_key_exists($name, $this->functions)) {
+        if (array_key_exists($name, $this->functions)) {
+            return $this->functions[$name];
+        }
+        if ($this->parent) {
+            return $this->parent->getFunctionObject($name);
+        }
+        return NULL;
+    }
+
+    public function getFunction($name, &$isLocal = NULL) {
+        $func = $this->getFunctionObject($name);
+        $isLocal = false;
+        if (is_null($func)) {
             throw new \RuntimeException("Can't find function {$name}");
         } 
-        $func = $this->functions[$name];
-        $vm   = $this;
+
+        if ($func instanceof \Closure) {
+            return $func;
+        }
+
+        $vm = $this;
+        $isLocal = true;
         return function() use ($func, $vm) {
-            return $func->execute($vm, func_get_args());
+            return $func->body($vm, func_get_args());
         };
     }
 
@@ -116,14 +173,51 @@ class Runtime
         if (is_array($key) && count($key) == 1) {
             $key = $key[0];
         } else if (is_array($key)) {
-            throw new \RuntimeException("I'm not yet implemented");
+            $value = $this->get($key[0]);
+            if (empty($value)) {
+                throw new \RuntimeException("Undefined variable {$key[0]}");
+            }
+
+            $value = $value->getValue($this);
+
+            for ($i=1; $i < count($key); $i++) {
+                $part = $key[$i] instanceof Base ? $this->getValue($key[$i]) : $key[$i];
+                try {
+                    if (!is_scalar($part)) {
+                        $value = NULL;
+                        break;
+                    }
+                    if (is_array($value) || (is_object($value) && $value instanceof \ArrayAccess)) {
+                        if (!array_key_exists($part, $value)) {
+                            if (!is_object($value) || !$value->offsetExists($part)) {
+                                throw new \Exception;
+                            }
+                        }
+                        $value = $value[$part];
+                    } else if (is_object($value)) {
+                        if (!property_exists($value, $part)) {
+                            throw new \Exception;
+                        }
+                        $value = $value->$part;
+                    } else {
+                        throw new \Exception;
+                    }
+                } catch (\Exception $e) {
+                    $value = NULL;
+                    break;
+                }
+            }
+            return $value;
         }
+
         if (array_key_exists($key, $this->variables)) {
             return $this->variables[$key];
         }
+
         if ($this->parent) {
             return $this->parent->get($key);
         }
+
         return NULL;
     }
 
@@ -146,11 +240,11 @@ class Runtime
         }
     }
 
-    public function getValue(Base $obj)
+    public function getValue(Base $obj, $extra = NULL)
     {
-        $obj = $obj->getValue($this);
+        $obj = $obj->getValue($this, $extra);
         while ($obj instanceof Base) {
-            $obj = $obj->getValue($this);
+            $obj = $obj->getValue($this, $extra);
         }
         return $obj;
     }

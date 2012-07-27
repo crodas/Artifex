@@ -60,6 +60,7 @@ class Tokenizer
 
     const IN_TEXT = 0;
     const IN_CODE = 1;
+    const IN_CODE_BLOCK = 2;
 
 
     public function __construct($text) 
@@ -76,6 +77,8 @@ class Tokenizer
         $tokens = array();
         $status = self::IN_TEXT;
         $map = array(
+            "//" => -1,
+            "#*!" => -1,
             "#*" => -1,
             "*#" => -1,
             "&&" => Parser::T_AND,
@@ -106,13 +109,15 @@ class Tokenizer
             "/"  => Parser::T_DIV,
             "%"  => Parser::T_MOD,
         );
+
         for ($i=0; $i < $len; $i++) {
-            if ($status == self::IN_TEXT) {
+            if ($status === self::IN_TEXT) {
                 $pos = strpos($text, "#*", $i);
                 if ($pos === false) {
                     $pos = $len;
                 }
-                $status    = self::IN_CODE;
+                $isBlock   = $pos != $len && $text[$pos+2] == '!';
+                $status    = $isBlock ? self ::IN_CODE_BLOCK : self::IN_CODE;
                 $raw_str   = substr($text, $i, $pos - $i);
                 $clean_str = rtrim($raw_str, " \t\r");
 
@@ -132,10 +137,13 @@ class Tokenizer
                 $i = $pos-1;
                 continue;
             }
+
             switch ($text[$i]) {
             case "\n":
                 $line++;
-                $status = self::IN_TEXT;
+                if ($status == self::IN_CODE) {
+                    $status = self::IN_TEXT;
+                }
                 break;
             case "\t": case "\r": case " ":
                 break;
@@ -146,7 +154,19 @@ class Tokenizer
                 for ($e = $i+1; $e < $len; $e++) {
                     switch ($text[$e]) {
                     case "\\":
-                        $str .= $text[++$e];
+                        $letter = $text[++$e];
+                        switch ($letter) {
+                        case "n":
+                            $letter = "\n";
+                            break;
+                        case "t":
+                            $letter = "\t";
+                            break;
+                        case "r":
+                            $letter = "\r";
+                            break;
+                        }
+                        $str .= $letter;
                         break;
                     case "'": case '"':
                         if ($text[$e] == $end) {
@@ -159,14 +179,24 @@ class Tokenizer
                 $tokens[] = array(Parser::T_STRING, $str, $line);
                 $i = $e;
                 break;
+
             default:
-                for($e=2; $e >= 1; $e--) {
+                for($e=3; $e >= 1; $e--) {
                     if (isset($map[substr($text, $i, $e)])) {
                         $token = substr($text, $i, $e);
-                        if ($token == "*#") {
+                        switch ($token) {
+                        case '//':
+                            $pos = strpos($text, "\n", $i);
+                            if ($pos == false) {
+                                $pos = $len;
+                            }
+                            $i = $pos - 1;
+                            continue 3;
+
+                        case '*#':
                             $i += $e - 1;
                             $status = self::IN_TEXT;
-                            continue 2;
+                            continue 3;
                         }
                         $tokens[] = Array($map[$token], $token, $line);
                         $i += $e - 1;
@@ -195,6 +225,7 @@ class Tokenizer
                 break;
             }
         }
+
         return $tokens;
     }
 }

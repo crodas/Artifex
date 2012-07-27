@@ -51,6 +51,20 @@ class Variable extends Base {
         return $this->var;
     }
 
+    public function isObject()
+    {
+        return count($this->var) > 1;
+    }
+
+    public function getParent()
+    {
+        if (!$this->isObject()) {
+            throw new \RuntimeException("this function only works for objects");
+        }
+        $var = array_slice($this->var, 0, -1);
+        return new Variable($var);
+    }
+
     public function __toString()
     {
         return "$" . implode("->", $this->var);
@@ -59,6 +73,17 @@ class Variable extends Base {
     public function getValue(Runtime $vm)
     {
         return $vm->get($this);
+    }
+
+    public function getPart($index)
+    {
+        if ($index < 0) {
+            $index = count($this->var) + $index;
+        }
+        if (empty($this->var[$index])) {
+            throw new \RuntimeException("cannot find part {$index}");
+        }
+        return $this->var[$index];
     }
 
 }

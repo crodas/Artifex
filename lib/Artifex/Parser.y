@@ -94,24 +94,29 @@ body(A) ::= . { A = array(); }
 line(A) ::= T_RAW_STRING(B). { A = new RawString(B); }
 line(A) ::= code(B). { A = B; }
 line(A) ::= code(B) T_NEW_LINE. { A = B; }
+line(A) ::= T_STRING(B) . { A = new RawString(B, true); }
 line(A) ::= T_WHITESPACE(x). { A = new Whitespace(x); }
 
 /* foreach {{{ */
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(C) T_RPARENT body(X) T_END. { 
     A = new Expr_Foreach(B, C, NULL, X); 
+    A->setChild(X);
 }
 
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(E) T_DOUBLE_ARROW variable(C) T_RPARENT body(X) T_END . {
     A = new Expr_Foreach(B, C, E, X);
+    A->setChild(X);
 }
 
 foreach_source(A) ::= variable(B) . { A = B; }
+foreach_source(A) ::= fnc_call(B) . { A = B; }
 foreach_source(A) ::= json(B) . { A = new Term(B); }
 /* }}} */
 
 /* function definition {{{ */
 code(A) ::= T_FUNCTION T_ALPHA(B) T_LPARENT args(X) T_RPARENT body(Z) T_END . {
     A = new DefFunction(B, X, Z);
+    A->setChild(Z);
 }
 /* }}} */
 
@@ -134,10 +139,12 @@ fnc_call(A) ::= variable(B) T_LPARENT args(X) T_RPARENT . {
 code(A) ::= if(B) . { A = B; }
 if(A) ::= T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . {
     A = new Expr_If(X, Y, Z);
+    A->setChild(Y);
 }
 
 else_if(A) ::= T_ELSE T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . { 
     A = new Expr_If(X, Y, Z); 
+    A->setChild(Y);
 }
 else_if(A) ::= T_ELSE body(X) T_END . { 
     A = X; 
@@ -173,7 +180,7 @@ args(X) ::= . { X = array(); }
 variable(A) ::= T_DOLLAR var(B) . { A = new Variable(B); }
 
 var(A) ::= var(B) T_OBJ var(C) . { A = array_merge(B, C); }
-var(A) ::= var(B) T_CURLY_OPEN expr(C) T_CURLY_CLOSE . { A = B ; A[] = C; }
+var(A) ::= var(B) T_SUBSCR_OPEN expr(C) T_SUBSCR_CLOSE . { A = B ; A[] = C; }
 var(A) ::= T_ALPHA(B) . { A = array(B);}
 /* }}} */
 
@@ -183,6 +190,7 @@ term(A) ::= T_TRUE      . { A = TRUE; }
 term(A) ::= T_FALSE     . { A = FALSE; }
 term(A) ::= T_STRING(B) . { A = B; }
 term(A) ::= T_NUMBER(B) . { A = B + 0; }
+term(A) ::= T_MINUS T_NUMBER(B) . { A = -1 * (B + 0); }
 term(A) ::= json(B) . { A = B; }
 /* }}} */
 
@@ -192,8 +200,10 @@ json(A) ::= T_SUBSCR_OPEN json_arr(B) T_SUBSCR_CLOSE. { A = B; }
 
 json_obj(A) ::= json_obj(B) T_COMMA json_obj(C). { A = array_merge(B, C); }
 json_obj(A) ::= term(B) T_COLON expr(C) . { A = array(B => C); } 
+json_obj(A) ::= . { A = array(); } 
 
 json_arr(X) ::= json_arr(A) T_COMMA expr(B) .  { X = A; X[] = B; }
 json_arr(A) ::= expr(B). { A = array(B); }
+json_arr(A) ::= . { A = array(); }
 /* }}} */
 

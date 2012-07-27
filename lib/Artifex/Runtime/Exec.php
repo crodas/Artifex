@@ -50,7 +50,40 @@ class Exec extends Base
         $this->args     = $arguments;
     }
 
-    public function getValue(Runtime $vm) 
+    public function printIndented($output, Runtime $vm)
+    {
+        if  ($this->prev instanceof Whitespace) {
+            $indent = $vm->getValue($this->prev);
+            $lines  = array_map(function($line) use ($indent) {
+                return $indent . $line;
+            }, explode("\n", rtrim($output, "\n")));
+            $output = implode("\n", $lines) . "\n";
+        }
+        $vm->doPrint($output);
+    }
+
+    public function functionEmpty(Array $args, Runtime $vm)
+    {
+        if (count($args) != 1) {
+            throw new \RuntimeException("empty expects 1 argument");
+            throw new \RuntimeException("empty expects 1 argument");
+        }
+
+        return empty($args[0]);
+    }
+ 
+    public function functionPrint(Array $args, Runtime $vm)
+    {
+        return $vm->doPrint($args[0]);
+    }
+
+    public function functionInclude(Array $args, Runtime $vm)
+    {
+        $content = $vm->doInclude($args[0]);
+        $this->printIndented($content, $vm);
+    }
+
+    public function getValue(Runtime $vm, $doPrint = true) 
     {
         $args = array();
         foreach ($this->args as $arg) {
@@ -58,25 +91,46 @@ class Exec extends Base
             $val = $vm->getValue($arg);
             $args[] = $val;
         }
-        if (strtolower($this->function) == "print") {
-            return $vm->doPrint($args[0]);
-        }
 
         $function = $this->function;
+        if (is_string($function) && is_callable(array($this, 'function' . $this->function))) {
+            return $this->{'function' . $this->function}($args, $vm);
+        }
+
+        if ($function instanceof Variable) {
+            // call methods
+            if ($function->isObject()) {
+                $object = $vm->getValue($function->getParent());
+                $method = $function->getPart(-1);
+                if (!is_callable(array($object, $method))) {
+                    throw new \RuntimeException(get_class($object) . '::' . $method . ' is not callable');
+                }
+                return call_user_func_array(array($object, $method), $args);
+            } else {
+                // $foo();
+                $function = $vm->getValue($function);
+            }
+        }
+
         if ($vm->functionExists($function)) {
             $function = $vm->getFunction($function);
-            $output = call_user_func_array($function , $args);
-            if  ($this->prev instanceof Whitespace) {
-                $indent = $vm->getValue($this->prev);
-                $lines  = array_map(function($line) use ($indent) {
-                    return $indent . $line;
-                }, explode("\n", rtrim($output, "\n")));
-                $output = implode("\n", $lines) . "\n";
-            }
-            $vm->doPrint($output);
+        }
+
+        if (!is_callable($function)) {
+            throw new \RuntimeException("{$function} is not a function");
+        }
+
+        $output = call_user_func_array($function , $args);
+
+        if ($doPrint) {
+            // if the function is indeed a local function
+            // (and not defined in the php side) then
+            // we should print and leave
+            $this->printIndented($output, $vm);
             return;
         }
-        return call_user_func_array($function , $args);
+
+        return $output;
     }
 
     public function Execute(Runtime $vm)

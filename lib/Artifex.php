@@ -82,6 +82,7 @@ class Artifex
         }
         $vm = self::compile(file_get_contents($file));
         $vm->setContext($context);
+        $vm->setPwd(dirname($file));
         return $vm;
     }
 

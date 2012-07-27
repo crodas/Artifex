@@ -40,9 +40,27 @@ use Artifex\Runtime;
 
 class RawString extends Base
 {
+    protected $args;
+    protected $isString;
+
+    public function __construct($string, $isString = false)
+    {
+        $this->args = $string;
+        $this->isString = $isString;
+    }
+
+    public function isString()
+    {
+        return $this->isString;
+    }
+
     public function execute(Runtime $vm)
     {
-        $text = preg_replace_callback("/__([a-z][a-z0-9_]*)__/i", function($var) use ($vm) {
+        $text = preg_replace_callback("/__(@?[a-z][a-z0-9_]*)__/i", function($var) use ($vm) {
+            if ($var[1][0] == '@') {
+                $var[1]   = substr($var[1], 1);
+                $varValue = true;
+            }
             $value = $vm->get($var[1]);
             if (is_null($value)) {
                 /* variable is not found, we ignore it */
@@ -50,11 +68,27 @@ class RawString extends Base
             }
             
             $result = $vm->getValue($value);
+
+            if (!empty($varValue)) {
+                $result = var_export($result, true);
+            }
+
+            if (is_object($result) && is_callable(array($result, '__toString'))) {
+                $result = (string)$result;
+            }
             if (!is_scalar($result)) {
                 throw new \RuntimeException("Only scalar values may be replaced. Use @ to get the string representation.");
             }
+
             return $result;
         }, $this->args);
+
+        if ($this->isString()) {
+            $prev = $this;
+            while ($prev->getParent()) {
+                $prev = $prev->getParent();
+            }
+        }
 
         $vm->doPrint($text);
     }

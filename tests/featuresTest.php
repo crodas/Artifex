@@ -61,4 +61,26 @@ EOF
         $args = array('foo' => 'bar');
         Artifex::execute("__args__", compact('args'));
     }
+
+    public static function fixturesProvider()
+    {
+        $args = array();
+        foreach (glob(__DIR__ . "/fixture/compare/*.tpl.php") as $file) {
+            $expected = str_replace(".tpl.", ".out.", $file);
+            if (!is_file($expected)) {
+                continue;
+            }
+            $args[] = array($file, file_get_contents($expected));
+        }
+        return $args;
+    }
+
+    /**
+     *  @dataProvider fixturesProvider
+     */
+    public function testFixtures($file, $expected)
+    {
+        $vm = Artifex::load($file);
+        $this->assertEquals($expected, $vm->run());
+    }
 }
