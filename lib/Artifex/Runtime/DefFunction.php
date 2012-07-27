@@ -83,7 +83,7 @@ class DefFunction extends Base
         $level   = 2000;
         $current = ini_get('xdebug.max_nesting_level');
         if (is_numeric($current) && $current < $level) {
-            ini_set('xdebug.max_nesting_level', 2000);
+            ini_set('xdebug.max_nesting_level', $level);
         }
         self::$fixedXDebug = true;
     }
