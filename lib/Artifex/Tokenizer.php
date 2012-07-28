@@ -60,7 +60,6 @@ class Tokenizer
     );
 
     const IN_TEXT = 0;
-    const IN_CODE = 1;
     const IN_CODE_BLOCK = 2;
 
 
@@ -79,7 +78,6 @@ class Tokenizer
         $status = self::IN_TEXT;
         $map = array(
             "//" => -1,
-            "#*!" => -1,
             "#*" => -1,
             "*#" => -1,
             "&&" => Parser::T_AND,
@@ -118,7 +116,7 @@ class Tokenizer
                     $pos = $len;
                 }
                 $isBlock   = $pos != $len && $text[$pos+2] == '!';
-                $status    = $isBlock ? self ::IN_CODE_BLOCK : self::IN_CODE;
+                $status    = self ::IN_CODE_BLOCK;
                 $raw_str   = substr($text, $i, $pos - $i);
                 $clean_str = rtrim($raw_str, " \t\r");
 
@@ -142,14 +140,15 @@ class Tokenizer
             switch ($text[$i]) {
             case "\n":
                 $line++;
-                if ($status == self::IN_CODE) {
-                    $status = self::IN_TEXT;
-                } else if ($status == self::IN_CODE_BLOCK) {
+                if ($status == self::IN_CODE_BLOCK) {
                     $e = $i;
                     while ($i+1 < $len && trim($text[++$i]) == "");
                     if ($i < $len) {
                         if ($text[$i] == '#') {
                             $whitespace = substr($text, $e+1, $i-$e-1);
+                            if (substr($text, $i, 2) == '#*') {
+                                $i++;
+                            }
                             if (!empty($whitespace)) {
                                 $tokens[] = array(Parser::T_WHITESPACE, $whitespace, $line);
                             }

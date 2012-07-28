@@ -15,7 +15,7 @@ Artifex syntax is heavily inspired by C preprocessors, but instead of starting w
 Artifex also support multiline in a convinient way.
 
 ```C
-#*!
+#*
 # $foo = $foo + 2
 # $bar = $foo + $foo->xxx();
 ```
