@@ -45,7 +45,7 @@ use \Artifex\Runtime\Assign,
     \Artifex\Runtime\Expr_Foreach,
     \Artifex\Runtime\RawString,
     \Artifex\Runtime\Term,
-    \Artifex\Runtime\DefFunction,
+    \Artifex\Runtime\Expr_Function,
     \Artifex\Runtime\Variable;
 
 class Runtime 
@@ -55,11 +55,13 @@ class Runtime
     protected $parent;
     protected $variables = array();
     protected $functions = array();
+    protected $return  = NULL;
+    protected $stopped = false;
 
     public function __construct(Array $stmts)
     {
         foreach ($stmts as $stmt) {
-            if ($stmt instanceof DefFunction) {
+            if ($stmt instanceof Expr_Function) {
                 $this->functions[strtolower($stmt->getName())] = $stmt;
             }
         }
@@ -135,7 +137,7 @@ class Runtime
         return !is_null($this->getFunctionObject($name));
     }
 
-    public function printIndented($output, Base $prev)
+    public function getLatestWhitespace(Base $prev)
     {
         do {
             while ($prev->getPrev()) {
@@ -151,8 +153,14 @@ class Runtime
             $prev = $prev->getParent();
         } while (true);
 
-        if ($prev instanceof Runtime\Whitespace) {
-            $indent = $this->getValue($prev);
+        return $prev instanceof Runtime\Whitespace ? $prev : NULL;
+    }
+
+    public function printIndented($output, Base $current)
+    {
+        $indent = $this->getLatestWhitespace($current);
+        if ($indent) {
+            $indent = $this->getValue($indent);
             $lines  = array_map(function($line) use ($indent) {
                 return $indent . $line;
             }, explode("\n", rtrim($output, "\n")));
@@ -253,6 +261,12 @@ class Runtime
         $this->buffer .= $text;
     }
 
+    public function halt($return = NULL)
+    {
+        $this->return  = $return;
+        $this->stopped = true;
+    }
+
     public function run()
     {
         $this->buffer = "";
@@ -260,10 +274,28 @@ class Runtime
         return $this->buffer;
     }
 
+    public function getBuffer()
+    {
+        return $this->buffer;
+    }
+
+    public function getReturn()
+    {
+        return $this->return;
+    }
+
+    public function __toString()
+    {
+        return $this->buffer;
+    }
+
     public function execStmts(Array $stmts)
     {
         foreach ($stmts as $stmt) {
             $stmt->execute($this);
+            if ($this->stopped) {
+                break;
+            }
         }
     }
 

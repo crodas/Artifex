@@ -40,7 +40,7 @@ namespace Artifex\Runtime;
 use Artifex\Runtime,
     \Artifex\Runtime\Variable;
 
-class DefFunction extends Base
+class Expr_Function extends Base
 {
     protected $name;
     protected $args;
@@ -101,6 +101,7 @@ class DefFunction extends Base
         if (count($fncargs) > 0) {
             $pzVm->setContext($fncargs);
         }
-        return $pzVm->run();
+        $pzVm->run();
+        return $pzVm;
     }
 }

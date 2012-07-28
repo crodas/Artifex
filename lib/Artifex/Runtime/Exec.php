@@ -100,22 +100,28 @@ class Exec extends Base
             }
         }
 
+        $isLocal = false;
         if ($vm->functionExists($function)) {
-            $function = $vm->getFunction($function);
+            $function = $vm->getFunction($function, $isLocal);
         }
 
         if (!is_callable($function)) {
             throw new \RuntimeException("{$function} is not a function");
         }
 
-        $output = call_user_func_array($function , $args);
+        $output = call_user_func_array($function, $args);
 
         if ($doPrint) {
             // if the function is indeed a local function
             // (and not defined in the php side) then
             // we should print and leave
-            $vm->printIndented($output, $this);
+            $vm->printIndented($isLocal ? $output->getBuffer() : $output, $this);
             return;
+        }
+
+        if ($isLocal && $output->getReturn()) {
+            $vm->printIndented($output->getBuffer(), $this);
+            return $output->getReturn();
         }
 
         return $output;

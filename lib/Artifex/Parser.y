@@ -42,16 +42,23 @@ use \Artifex\Runtime\Assign,
     \Artifex\Runtime\Expr,
     \Artifex\Runtime\Expr_If,
     \Artifex\Runtime\Expr_Foreach,
+    \Artifex\Runtime\Expr_Function,
+    \Artifex\Runtime\Expr_Return,
     \Artifex\Runtime\RawString,
     \Artifex\Runtime\Whitespace,
     \Artifex\Runtime\Term,
-    \Artifex\Runtime\DefFunction,
     \Artifex\Runtime\Variable;
 }
 
 %declare_class {class Artifex_Parser }
 %include_class {
     public $body = array();
+
+    public function setPrevNext($a, $b)
+    {
+        $a->setNext($b);
+        $b->setPrev($a);
+    }
 }
 
 %syntax_error {
@@ -60,8 +67,8 @@ use \Artifex\Runtime\Assign,
         $expect[] = self::$yyTokenName[$token];
     }
     throw new Exception('Unexpected ' . $this->tokenName($yymajor) .  ' in line ' . $this->line
-        . ' (' . $TOKEN . ') '
-        . ' Expected: ' . print_r($expect, true));
+        . ' (' . $TOKEN . ')  on line ' . $this->line
+        . '. Expected: ' . print_r($expect, true));
 }
 
 
@@ -83,8 +90,7 @@ start ::= body(A). { $this->body = A; }
 body(A) ::= body(B) line(C). {
     $last = end(B);
     if ($last) {
-        $last->setNext(C);
-        C->setPrev($last);
+        $this->setPrevNext($last, C);
     }
     B[] = C; 
     A = B; 
@@ -96,6 +102,8 @@ line(A) ::= code(B). { A = B; }
 line(A) ::= code(B) T_NEW_LINE. { A = B; }
 line(A) ::= T_STRING(B) . { A = new RawString(B, true); }
 line(A) ::= T_WHITESPACE(x). { A = new Whitespace(x); }
+
+code(A) ::= T_RETURN expr(X) . { A = new Expr_Return(X); }
 
 /* foreach {{{ */
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(C) T_RPARENT body(X) T_END. { 
@@ -115,13 +123,17 @@ foreach_source(A) ::= json(B) . { A = new Term(B); }
 
 /* function definition {{{ */
 code(A) ::= T_FUNCTION T_ALPHA(B) T_LPARENT args(X) T_RPARENT body(Z) T_END . {
-    A = new DefFunction(B, X, Z);
+    A = new Expr_Function(B, X, Z);
     A->setChild(Z);
 }
 /* }}} */
 
 /* assign {{{ */
-code(A) ::= variable(B) T_ASSIGN expr(C) . { A = new Assign(B, C); }
+code(A) ::= variable(B) T_ASSIGN expr(C) . { 
+    A = new Assign(B, C); 
+    $this->setPrevNext(A, B);
+    $this->setPrevNext(B, C);
+}
 /* }}} */
 
 /* function call {{{ */
@@ -143,8 +155,7 @@ if(A) ::= T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . {
     if (is_array(Z)) {
         A->setChild(Z);
     } else if (is_object(Z)) {
-        A->setNext(Z);
-        Z->setPrev(A);
+        $this->setPrevNext(A, Z);
     }
 }
 
