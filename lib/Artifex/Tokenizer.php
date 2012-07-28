@@ -146,9 +146,16 @@ class Tokenizer
                 } else if ($status == self::IN_CODE_BLOCK) {
                     $e = $i;
                     while ($i+1 < $len && trim($text[++$i]) == "");
-                    if ($i < $len && $text[$i] != '#') {
-                        $status = self::IN_TEXT;
-                        $i = $e;
+                    if ($i < $len) {
+                        if ($text[$i] == '#') {
+                            $whitespace = substr($text, $e+1, $i-$e-1);
+                            if (!empty($whitespace)) {
+                                $tokens[] = array(Parser::T_WHITESPACE, $whitespace, $line);
+                            }
+                        } else {
+                            $status = self::IN_TEXT;
+                            $i = $e;
+                        }
                     }
                 }
                 break;
