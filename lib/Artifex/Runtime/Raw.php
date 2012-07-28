@@ -34,96 +34,10 @@
   | Authors: César Rodas <crodas@php.net>                                           |
   +---------------------------------------------------------------------------------+
 */
-
 namespace Artifex\Runtime;
 
 use Artifex\Runtime;
 
-class Exec extends Base
+class Raw extends Base
 {
-    protected $function;
-    protected $args;
-
-    public function __construct($function, $arguments) 
-    {
-        $this->function = $function;
-        $this->args     = $arguments;
-    }
-
-    public function functionEmpty(Array $args, Runtime $vm)
-    {
-        if (count($args) != 1) {
-            throw new \RuntimeException("empty expects 1 argument");
-            throw new \RuntimeException("empty expects 1 argument");
-        }
-
-        return empty($args[0]);
-    }
- 
-    public function functionPrint(Array $args, Runtime $vm)
-    {
-        return $vm->doPrint($args[0]);
-    }
-
-    public function functionInclude(Array $args, Runtime $vm)
-    {
-        $content = $vm->doInclude($args[0]);
-        $vm->printIndented($content, $this);
-    }
-
-    public function getValue(Runtime $vm, $doPrint = true) 
-    {
-        $args = array();
-        foreach ($this->args as $arg) {
-            if (is_null($arg)) continue;
-            $val = $vm->getValue($arg);
-            $args[] = $val;
-        }
-
-        $function = $this->function;
-        if (is_string($function) && is_callable(array($this, 'function' . $this->function))) {
-            return $this->{'function' . $this->function}($args, $vm);
-        }
-
-        if ($function instanceof Variable) {
-            // call methods
-            if ($function->isObject()) {
-                $object = $vm->getValue($function->getParent());
-                $method = $function->getPart(-1);
-                if (!is_callable(array($object, $method))) {
-                    throw new \RuntimeException(get_class($object) . '::' . $method . ' is not callable');
-                }
-                return call_user_func_array(array($object, $method), $args);
-            } else {
-                // $foo();
-                $function = $vm->getValue($function);
-            }
-        }
-
-        if ($vm->functionExists($function)) {
-            $function = $vm->getFunction($function);
-        }
-
-        if (!is_callable($function)) {
-            throw new \RuntimeException("{$function} is not a function");
-        }
-
-        $output = call_user_func_array($function , $args);
-
-        if ($doPrint) {
-            // if the function is indeed a local function
-            // (and not defined in the php side) then
-            // we should print and leave
-            $vm->printIndented($output, $this);
-            return;
-        }
-
-        return $output;
-    }
-
-    public function Execute(Runtime $vm)
-    {
-        return $this->getValue($vm);
-    }
 }
-

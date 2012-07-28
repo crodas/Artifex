@@ -38,7 +38,7 @@ namespace Artifex\Runtime;
 
 use Artifex\Runtime;
 
-class Whitespace extends Base
+class Whitespace extends Raw
 {
     protected $value;
 

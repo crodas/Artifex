@@ -80,6 +80,11 @@ class Base
         return $this->prev;
     }
 
+    public function getNext()
+    {
+        return $this->next;
+    }
+
     public function setChild(Array $child)
     {
         foreach ($child as $c) {

@@ -135,6 +135,33 @@ class Runtime
         return !is_null($this->getFunctionObject($name));
     }
 
+    public function printIndented($output, Base $prev)
+    {
+        do {
+            while ($prev->getPrev()) {
+                if ($prev instanceof Runtime\Raw) {
+                    break; 
+                }
+                $prev = $prev->getPrev();
+            }
+
+            if ($prev instanceof Runtime\Raw || !$prev->getParent()) {
+                break;
+            }
+            $prev = $prev->getParent();
+        } while (true);
+
+        if ($prev instanceof Runtime\Whitespace) {
+            $indent = $this->getValue($prev);
+            $lines  = array_map(function($line) use ($indent) {
+                return $indent . $line;
+            }, explode("\n", rtrim($output, "\n")));
+            $output = implode("\n", $lines) . "\n";
+        }
+        $this->doPrint($output);
+    }
+
+
     protected function getFunctionObject($name)
     {
         $name = strtolower($name);

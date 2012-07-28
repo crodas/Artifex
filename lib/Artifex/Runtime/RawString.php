@@ -38,7 +38,7 @@ namespace Artifex\Runtime;
 
 use Artifex\Runtime;
 
-class RawString extends Base
+class RawString extends Raw
 {
     protected $args;
     protected $isString;
@@ -84,12 +84,9 @@ class RawString extends Base
         }, $this->args);
 
         if ($this->isString()) {
-            $prev = $this;
-            while ($prev->getParent()) {
-                $prev = $prev->getParent();
-            }
+            return $vm->printIndented($text, $this);
         }
 
-        $vm->doPrint($text);
+        return $vm->doPrint($text);
     }
 }

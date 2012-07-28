@@ -8,8 +8,6 @@
  */
 
 
-
-
 spl_autoload_register(function ($class) {
     /*
         This array has a map of (class => file)
@@ -19,6 +17,7 @@ spl_autoload_register(function ($class) {
     static $classes = array (
   'artifex' => '/../Artifex.php',
   'artifex\\runtime\\base' => '/Runtime/Base.php',
+  'artifex\\runtime\\raw' => '/Runtime/Raw.php',
   'artifex\\runtime\\variable' => '/Runtime/Variable.php',
   'artifex\\runtime\\exec' => '/Runtime/Exec.php',
   'artifex\\runtime\\term' => '/Runtime/Term.php',
@@ -41,6 +40,10 @@ spl_autoload_register(function ($class) {
 
     // deps {{{
     static $deps    = array (
+  'artifex\\runtime\\raw' => 
+  array (
+    0 => 'artifex\\runtime\\base',
+  ),
   'artifex\\runtime\\variable' => 
   array (
     0 => 'artifex\\runtime\\base',
@@ -56,8 +59,13 @@ spl_autoload_register(function ($class) {
   'artifex\\runtime\\rawstring' => 
   array (
     0 => 'artifex\\runtime\\base',
+    1 => 'artifex\\runtime\\raw',
   ),
   'artifex\\runtime\\expr' => 
+  array (
+    0 => 'artifex\\runtime\\base',
+  ),
+  'artifex\\runtime\\deffunction' => 
   array (
     0 => 'artifex\\runtime\\base',
   ),
@@ -80,6 +88,7 @@ spl_autoload_register(function ($class) {
   'artifex\\runtime\\whitespace' => 
   array (
     0 => 'artifex\\runtime\\base',
+    1 => 'artifex\\runtime\\raw',
   ),
 );
     // }}}
@@ -88,13 +97,13 @@ spl_autoload_register(function ($class) {
     if (isset($classes[$class])) {
         if (!empty($deps[$class])) {
             foreach ($deps[$class] as $zclass) {
-if (!class_exists($zclass, false)) {
+                if (!class_exists($zclass, false)) {
                     require __DIR__  . $classes[$zclass];
                 }
             }
         }
 
-if (!class_exists($class, false)) {
+        if (!class_exists($class, false)) {
             require __DIR__  . $classes[$class];
         }
         return true;
