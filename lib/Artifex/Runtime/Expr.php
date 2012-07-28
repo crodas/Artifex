@@ -49,7 +49,7 @@ class Expr extends Base
 
         foreach ($args as $id => $arg) {
             if ($arg instanceof Base) {
-                $args[$id] = $vm->getValue($arg, !($arg instanceof Variable));
+                $args[$id] = $vm->getValue($arg);
             }
         }
 

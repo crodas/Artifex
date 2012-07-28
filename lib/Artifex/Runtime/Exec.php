@@ -127,9 +127,9 @@ class Exec extends Base
         return $output;
     }
 
-    public function Execute(Runtime $vm)
+    public function Execute(Runtime $vm, $return = false)
     {
-        return $this->getValue($vm, true);
+        return $this->getValue($vm, !$return);
     }
 }
 
