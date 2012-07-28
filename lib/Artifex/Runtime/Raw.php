@@ -40,4 +40,8 @@ use Artifex\Runtime;
 
 class Raw extends Base
 {
+    public function isString()
+    {
+        return false;
+    }
 }

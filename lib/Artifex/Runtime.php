@@ -139,13 +139,13 @@ class Runtime
     {
         do {
             while ($prev->getPrev()) {
-                if ($prev instanceof Runtime\Raw) {
+                if ($prev instanceof Runtime\Raw && !$prev->isString()) {
                     break; 
                 }
                 $prev = $prev->getPrev();
             }
 
-            if ($prev instanceof Runtime\Raw || !$prev->getParent()) {
+            if ($prev instanceof Runtime\Raw && !$prev->isString() || !$prev->getParent()) {
                 break;
             }
             $prev = $prev->getParent();

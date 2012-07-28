@@ -140,11 +140,23 @@ code(A) ::= if(B) . { A = B; }
 if(A) ::= T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . {
     A = new Expr_If(X, Y, Z);
     A->setChild(Y);
+    if (is_array(Z)) {
+        A->setChild(Z);
+    } else if (is_object(Z)) {
+        A->setNext(Z);
+        Z->setPrev(A);
+    }
 }
 
 else_if(A) ::= T_ELSE T_IF T_LPARENT expr(X) T_RPARENT body(Y) else_if(Z) . { 
     A = new Expr_If(X, Y, Z); 
     A->setChild(Y);
+    if (is_array(Z)) {
+        A->setChild(Z);
+    } else if (is_object(Z)) {
+        A->setNext(Z);
+        Z->setPrev(A);
+    }
 }
 else_if(A) ::= T_ELSE body(X) T_END . { 
     A = X; 
