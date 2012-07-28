@@ -143,6 +143,13 @@ class Tokenizer
                 $line++;
                 if ($status == self::IN_CODE) {
                     $status = self::IN_TEXT;
+                } else if ($status == self::IN_CODE_BLOCK) {
+                    $e = $i;
+                    while ($i+1 < $len && trim($text[++$i]) == "");
+                    if ($i < $len && $text[$i] != '#') {
+                        $status = self::IN_TEXT;
+                        $i = $e;
+                    }
                 }
                 break;
             case "\t": case "\r": case " ":
