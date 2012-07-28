@@ -3,3 +3,5 @@ hi there
 #* else
 WTF
 #* end
+#  count([1,2,3])
+
