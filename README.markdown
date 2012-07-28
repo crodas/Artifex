@@ -56,4 +56,8 @@ class __foo__ {
     return "I'm a the getter of __name__";
   }
   #* end
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 226a56dc5ad01d71e09f57c8b70a9ab4961e314d
