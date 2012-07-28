@@ -51,13 +51,11 @@ So far Artifex support foreach
 <?php
 
 class __foo__ {
-  #* foreach(['foo', 'bar'] as $name)
+  #* foreach(['foo', 'bar'] as $id => $name)
   function get__name__() {
-    return "I'm a the getter of __name__";
+    return "I'm a the getter of __id__ => __name__";
   }
   #* end
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 226a56dc5ad01d71e09f57c8b70a9ab4961e314d
+```
+
