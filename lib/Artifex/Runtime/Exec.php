@@ -71,7 +71,7 @@ class Exec extends Base
         $vm->printIndented($content, $this);
     }
 
-    public function getValue(Runtime $vm, $doPrint = true) 
+    public function getValue(Runtime $vm, $doPrint = false) 
     {
         $args = array();
         foreach ($this->args as $arg) {
@@ -129,7 +129,7 @@ class Exec extends Base
 
     public function Execute(Runtime $vm)
     {
-        return $this->getValue($vm);
+        return $this->getValue($vm, true);
     }
 }
 
