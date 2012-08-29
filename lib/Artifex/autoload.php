@@ -25,9 +25,11 @@ spl_autoload_register(function ($class) {
   'artifex\\runtime\\expr' => '/Runtime/Expr.php',
   'artifex\\runtime\\concat' => '/Runtime/Concat.php',
   'artifex\\runtime\\assign' => '/Runtime/Assign.php',
+  'artifex\\runtime\\expr_continue' => '/Runtime/Expr/Continue.php',
   'artifex\\runtime\\expr_if' => '/Runtime/Expr/If.php',
   'artifex\\runtime\\expr_foreach' => '/Runtime/Expr/Foreach.php',
   'artifex\\runtime\\expr_function' => '/Runtime/Expr/Function.php',
+  'artifex\\runtime\\expr_return' => '/Runtime/Expr/Return.php',
   'artifex\\runtime\\whitespace' => '/Runtime/Whitespace.php',
   'artifex\\tokenizer' => '/Tokenizer.php',
   'artifex_yytoken' => '/Parser.php',
@@ -73,6 +75,10 @@ spl_autoload_register(function ($class) {
   array (
     0 => 'artifex\\runtime\\base',
   ),
+  'artifex\\runtime\\expr_continue' => 
+  array (
+    0 => 'artifex\\runtime\\base',
+  ),
   'artifex\\runtime\\expr_if' => 
   array (
     0 => 'artifex\\runtime\\base',
@@ -82,6 +88,10 @@ spl_autoload_register(function ($class) {
     0 => 'artifex\\runtime\\base',
   ),
   'artifex\\runtime\\expr_function' => 
+  array (
+    0 => 'artifex\\runtime\\base',
+  ),
+  'artifex\\runtime\\expr_return' => 
   array (
     0 => 'artifex\\runtime\\base',
   ),
@@ -104,7 +114,9 @@ spl_autoload_register(function ($class) {
         }
 
         if (!class_exists($class, false)) {
+
             require __DIR__  . $classes[$class];
+
         }
         return true;
     }

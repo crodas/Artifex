@@ -56,7 +56,8 @@ class Runtime
     protected $variables = array();
     protected $functions = array();
     protected $return  = NULL;
-    protected $stopped = false;
+    protected $isStopped = false;
+    protected $isSuspended = false;
 
     public function __construct(Array $stmts)
     {
@@ -264,7 +265,20 @@ class Runtime
     public function halt($return = NULL)
     {
         $this->return  = $return;
-        $this->stopped = true;
+        $this->isStopped = true;
+    }
+
+    public function isRunning()
+    {
+        return !$this->isStopped;
+    }
+
+    public function isSuspended($suspended = NULL)
+    {
+        if (is_null($suspended)) {
+            return $this->isSuspended;
+        }
+        $this->isSuspended = (bool)$suspended;
     }
 
     public function run()
@@ -293,7 +307,7 @@ class Runtime
     {
         foreach ($stmts as $stmt) {
             $stmt->execute($this);
-            if ($this->stopped) {
+            if ($this->isStopped) {
                 break;
             }
         }

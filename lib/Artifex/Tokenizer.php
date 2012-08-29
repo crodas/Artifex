@@ -46,6 +46,7 @@ class Tokenizer
     protected $keywordsMap = array(
         "return" => Parser::T_RETURN,
         "function" => Parser::T_FUNCTION,
+        "continue" => Parser::T_CONTINUE,
         "foreach" => Parser::T_FOREACH,
         "if"      => Parser::T_IF,
         "else"    => Parser::T_ELSE,

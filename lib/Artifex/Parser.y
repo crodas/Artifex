@@ -44,6 +44,7 @@ use \Artifex\Runtime\Assign,
     \Artifex\Runtime\Expr_Foreach,
     \Artifex\Runtime\Expr_Function,
     \Artifex\Runtime\Expr_Return,
+    \Artifex\Runtime\Expr_Continue,
     \Artifex\Runtime\RawString,
     \Artifex\Runtime\Whitespace,
     \Artifex\Runtime\Term,
@@ -104,6 +105,7 @@ line(A) ::= T_STRING(B) . { A = new RawString(B, true); }
 line(A) ::= T_WHITESPACE(x). { A = new Whitespace(x); }
 
 code(A) ::= T_RETURN expr(X) . { A = new Expr_Return(X); }
+code(A) ::= T_CONTINUE . { A = new Expr_Continue; }
 
 /* foreach {{{ */
 code(A) ::= T_FOREACH T_LPARENT foreach_source(B) T_AS variable(C) T_RPARENT body(X) T_END. { 
