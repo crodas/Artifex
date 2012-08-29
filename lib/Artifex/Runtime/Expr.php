@@ -82,7 +82,7 @@ class Expr extends Base
             $value = $args[1] % $args[2];
             break;
         case '==':
-            $value = $args[1] == $args[2];
+            $value = $args[1] === $args[2];
             break;
         case 'and':
         case '&&':
@@ -93,7 +93,7 @@ class Expr extends Base
             $value = $args[1] || $args[2];
             break;
         case '!=':
-            $value = $args[1] != $args[2];
+            $value = $args[1] !== $args[2];
             break;
         case 'not':
             $value = !$args[1];
