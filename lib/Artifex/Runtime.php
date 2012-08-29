@@ -273,6 +273,14 @@ class Runtime
         return !$this->isStopped;
     }
 
+    public function isStopped($halt = NULL)
+    {
+        if (is_null($halt)) {
+            return $this->isStopped;
+        }
+        $this->isStopped = (bool)$halt;
+    }
+
     public function isSuspended($suspended = NULL)
     {
         if (is_null($suspended)) {
@@ -307,7 +315,7 @@ class Runtime
     {
         foreach ($stmts as $stmt) {
             $stmt->execute($this);
-            if ($this->isStopped) {
+            if ($this->isStopped || $this->isSuspended) {
                 break;
             }
         }

@@ -76,11 +76,11 @@ class Expr_Foreach extends Base
             $vm->define($value, $zvalue);
             foreach ($body as $stmt) {
                 $stmt->execute($vm);
-                if (!$vm->isSuspended()) {
+                if ($vm->isSuspended()) {
                     $vm->isSuspended(false);
-                    continue;
+                    break;
                 }
-                if (!$vm->isRunning()) {
+                if ($vm->isStopped()) {
                     break 2;
                 }
             }
