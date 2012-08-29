@@ -264,7 +264,7 @@ class Runtime
 
     public function halt($return = NULL)
     {
-        $this->return  = $return;
+        $this->return    = $return;
         $this->isStopped = true;
     }
 

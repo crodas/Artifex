@@ -97,7 +97,11 @@ class Expr_Function extends Base
             $fncargs[current($arg->getNative())] = $args[$id];
         }
         $pzVm = new Runtime($this->code);
-        $pzVm->setParentVm($vm);
+        if ($vm->getParentVm()) {
+            $pzVm->setParentVm($vm->getParentVm());
+        } else {
+            $pzVm->setParentVm($vm);
+        }
         if (count($fncargs) > 0) {
             $pzVm->setContext($fncargs);
         }
