@@ -94,7 +94,7 @@ class Runtime
         return $this;
     }
 
-    public function doInclude($tpl)
+    public function getPath($tpl) 
     {
         if (is_file($this->pwd . '/' . $tpl)) {
             $file = $this->pwd . '/' . $tpl;
@@ -104,9 +104,16 @@ class Runtime
                 throw new \RuntimeException("Cannot include template {$tpl}");
             }
         }
-        $vm  = \Artifex::load($file, $this->variables);
-        $fnc = array_merge($this->functions, $vm->functions);
-        $vm->functions = $fnc;
+        return $file;
+    }
+
+    public function doInclude($tpl)
+    {
+        $file = $this->getPath($tpl);
+        $vm   = \Artifex::load($file, $this->variables);
+        $fnc  = array_merge($this->functions, $vm->functions);
+        $this->functions = $fnc;
+        $vm->functions   = $fnc;
         return $vm->run();
     }
 
