@@ -75,7 +75,7 @@ class Expr_Foreach extends Base
             }
             $vm->define($value, $zvalue);
             foreach ($body as $stmt) {
-                $stmt->execute($vm);
+                $vm->execute($stmt);
                 if ($vm->isSuspended()) {
                     $vm->isSuspended(false);
                     break;

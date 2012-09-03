@@ -56,7 +56,7 @@ class Variable extends Base {
         return count($this->var) > 1;
     }
 
-    public function getParent()
+    public function getObjectVar()
     {
         if (!$this->isObject()) {
             throw new \RuntimeException("this function only works for objects");

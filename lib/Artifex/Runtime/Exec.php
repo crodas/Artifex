@@ -88,7 +88,7 @@ class Exec extends Base
         if ($function instanceof Variable) {
             // call methods
             if ($function->isObject()) {
-                $object = $vm->getValue($function->getParent());
+                $object = $vm->getValue($function->getObjectVar());
                 $method = $function->getPart(-1);
                 if (!is_callable(array($object, $method))) {
                     throw new \RuntimeException(get_class($object) . '::' . $method . ' is not callable');

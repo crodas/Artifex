@@ -51,7 +51,7 @@ class Expr_If extends Base {
                 $vm->execStmts($this->args[2]);
             } else {
                 /* else if */
-                $this->args[2]->execute($vm);
+                $vm->execute($this->args[2]);
             }
         }
     }
