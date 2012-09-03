@@ -36,71 +36,15 @@
 */
 namespace Artifex\Runtime;
 
-use Artifex\Runtime;
+use Artifex\Runtime,
+    Artifex\Runtime\Term;
 
-class Expr extends Base 
+class Expr_Return extends Base
 {
-    public function getValue(Runtime $vm)
+
+    public function execute(Runtime $vm)
     {
-        $args = $this->args;
-        if ($args instanceof self) {
-            return $args;
-        }
-
-        foreach ($args as $id => $arg) {
-            if ($arg instanceof Base) {
-                $args[$id] = $vm->getValue($arg);
-            }
-        }
-
-        switch (strtolower($args[0])) {
-        case '>':
-            $value = $args[1] > $args[2];
-            break;
-        case '<':
-            $value = $args[1] < $args[2];
-            break;
-        case '>=':
-            $value = $args[1] >= $args[2];
-            break;
-        case '<=':
-            $value = $args[1] <= $args[2];
-            break;
-        case '*':
-            $value = $args[1] * $args[2];
-            break;
-        case '/':
-            $value = $args[1] / $args[2];
-            break;
-        case '-':
-            $value = $args[1] - $args[2];
-            break;
-        case '+':
-            $value = $args[1] + $args[2];
-            break;
-        case '%':
-            $value = $args[1] % $args[2];
-            break;
-        case '==':
-            $value = $args[1] === $args[2];
-            break;
-        case 'and':
-        case '&&':
-            $value = $args[1] && $args[2];
-            break;
-        case 'or':
-        case '||':
-            $value = $args[1] || $args[2];
-            break;
-        case '!=':
-            $value = $args[1] !== $args[2];
-            break;
-        case 'not':
-            $value = !$args[1];
-            break;
-        default:
-            throw new \RuntimeException("{$args[0]} is not implemented");
-        }
-        return $value;
+        $vm->halt($vm->getValue($this->args));
     }
+
 }

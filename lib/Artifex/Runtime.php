@@ -51,12 +51,25 @@ use \Artifex\Runtime\Assign,
 class Runtime 
 {
     protected $stack = array();
+    /**
+     *  Keeps in track the latest statement processed
+     */
+    protected $lastStmt;
     protected $stmts;
+    /** 
+     *  Parent virtual machine
+     */
     protected $parent;
+    /**
+     *  The Parent virtual machine
+     *  has a list of their childrens
+     */
+    protected $children = array();
     protected $variables = array();
     protected $functions = array();
     protected $return  = NULL;
-    protected $stopped = false;
+    protected $isStopped = false;
+    protected $isSuspended = false;
 
     public function __construct(Array $stmts)
     {
@@ -77,6 +90,7 @@ class Runtime
     public function setParentVm(Runtime $vm)
     {
         $this->parent = $vm;
+        $vm->children[] = $this;
     }
 
     public function getParentVm()
@@ -93,7 +107,7 @@ class Runtime
         return $this;
     }
 
-    public function doInclude($tpl)
+    public function getPath($tpl) 
     {
         if (is_file($this->pwd . '/' . $tpl)) {
             $file = $this->pwd . '/' . $tpl;
@@ -103,9 +117,16 @@ class Runtime
                 throw new \RuntimeException("Cannot include template {$tpl}");
             }
         }
-        $vm  = \Artifex::load($file, $this->variables);
-        $fnc = array_merge($this->functions, $vm->functions);
-        $vm->functions = $fnc;
+        return $file;
+    }
+
+    public function doInclude($tpl)
+    {
+        $file = $this->getPath($tpl);
+        $vm   = \Artifex::load($file, $this->variables);
+        $fnc  = array_merge($this->functions, $vm->functions);
+        $this->functions = $fnc;
+        $vm->functions   = $fnc;
         return $vm->run();
     }
 
@@ -156,9 +177,16 @@ class Runtime
         return $prev instanceof Runtime\Whitespace ? $prev : NULL;
     }
 
-    public function printIndented($output, Base $current)
+    public function printIndented($output, Base $current = NULL)
     {
-        $indent = $this->getLatestWhitespace($current);
+        $vm = $this;
+        if (count($this->children) > 0) {
+            $vm = $this->children[ count($this->children)-1];
+        }
+        if (is_null($current)) {
+            $current = $vm->lastStmt;
+        }
+        $indent = $vm->getLatestWhitespace($current);
         if ($indent) {
             $indent = $this->getValue($indent);
             $lines  = array_map(function($line) use ($indent) {
@@ -166,7 +194,7 @@ class Runtime
             }, explode("\n", rtrim($output, "\n")));
             $output = implode("\n", $lines) . "\n";
         }
-        $this->doPrint($output);
+        $vm->doPrint($output);
     }
 
 
@@ -263,14 +291,38 @@ class Runtime
 
     public function halt($return = NULL)
     {
-        $this->return  = $return;
-        $this->stopped = true;
+        $this->return    = $return;
+        $this->isStopped = true;
+    }
+
+    public function isRunning()
+    {
+        return !$this->isStopped;
+    }
+
+    public function isStopped($halt = NULL)
+    {
+        if (is_null($halt)) {
+            return $this->isStopped;
+        }
+        $this->isStopped = (bool)$halt;
+    }
+
+    public function isSuspended($suspended = NULL)
+    {
+        if (is_null($suspended)) {
+            return $this->isSuspended;
+        }
+        $this->isSuspended = (bool)$suspended;
     }
 
     public function run()
     {
         $this->buffer = "";
         $this->execStmts($this->stmts);
+        if ($this->parent) {
+            array_pop($this->parent->children);
+        }
         return $this->buffer;
     }
 
@@ -289,11 +341,18 @@ class Runtime
         return $this->buffer;
     }
 
+    public function execute(Base $stmt) {
+        if (!$stmt instanceof Variable) {
+            $this->lastStmt = $stmt;
+        }
+        $stmt->execute($this);
+    }
+
     public function execStmts(Array $stmts)
     {
         foreach ($stmts as $stmt) {
-            $stmt->execute($this);
-            if ($this->stopped) {
+            $this->execute($stmt);
+            if ($this->isStopped || $this->isSuspended) {
                 break;
             }
         }
@@ -301,6 +360,9 @@ class Runtime
 
     public function getValue(Base $obj, $extra = NULL)
     {
+        if (!$obj instanceof Variable) {
+            $this->lastStmt = $obj;
+        }
         $obj = $obj->getValue($this, $extra);
         while ($obj instanceof Base) {
             $obj = $obj->getValue($this, $extra);

@@ -74,7 +74,16 @@ class Expr_Foreach extends Base
                 $vm->define($key, new Term($zkey));
             }
             $vm->define($value, $zvalue);
-            $vm->execStmts($body);
+            foreach ($body as $stmt) {
+                $vm->execute($stmt);
+                if ($vm->isSuspended()) {
+                    $vm->isSuspended(false);
+                    break;
+                }
+                if ($vm->isStopped()) {
+                    break 2;
+                }
+            }
         }
     }
 }
