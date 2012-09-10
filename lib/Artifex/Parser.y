@@ -142,10 +142,12 @@ code(A) ::= variable(B) T_ASSIGN expr(C) . {
 code(A) ::= fnc_call(B) . { A = B; }
 fnc_call(A) ::= T_ALPHA(B) T_LPARENT args(X) T_RPARENT . { 
     A = new Exec(B, X);
+    A->setChild(X);
 }
 
 fnc_call(A) ::= variable(B) T_LPARENT args(X) T_RPARENT . { 
     A = new Exec(B, X);
+    A->setChild(X);
 }
 /* }}} */
 
