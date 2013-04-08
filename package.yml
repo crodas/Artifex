@@ -4,4 +4,4 @@ authors:
     - email: crodas@php.net
 
 version: 0.0.1-alpha
-files: [lib],
+files: [lib/]
