@@ -1,0 +1,7 @@
+name: artifex
+authors:
+    - name: César D. Rodas
+    - email: crodas@php.net
+
+version: 0.0.1-alpha
+files: [lib/]

@@ -1286,9 +1286,10 @@ static public $yy_action = array(
 #line 142 "lib/Artifex/Parser.y"
     function yy_r18(){ 
     $this->_retvalue = new Exec($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor);
+    $this->_retvalue->setChild($this->yystack[$this->yyidx + -1]->minor);
     }
-#line 1296 "lib/Artifex/Parser.php"
-#line 153 "lib/Artifex/Parser.y"
+#line 1297 "lib/Artifex/Parser.php"
+#line 155 "lib/Artifex/Parser.y"
     function yy_r21(){
     $this->_retvalue = new Expr_If($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
     $this->_retvalue->setChild($this->yystack[$this->yyidx + -1]->minor);
@@ -1298,8 +1299,8 @@ static public $yy_action = array(
         $this->setPrevNext($this->_retvalue, $this->yystack[$this->yyidx + 0]->minor);
     }
     }
-#line 1307 "lib/Artifex/Parser.php"
-#line 163 "lib/Artifex/Parser.y"
+#line 1308 "lib/Artifex/Parser.php"
+#line 165 "lib/Artifex/Parser.y"
     function yy_r22(){ 
     $this->_retvalue = new Expr_If($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor); 
     $this->_retvalue->setChild($this->yystack[$this->yyidx + -1]->minor);
@@ -1310,80 +1311,80 @@ static public $yy_action = array(
         $this->yystack[$this->yyidx + 0]->minor->setPrev($this->_retvalue);
     }
     }
-#line 1319 "lib/Artifex/Parser.php"
-#line 173 "lib/Artifex/Parser.y"
+#line 1320 "lib/Artifex/Parser.php"
+#line 175 "lib/Artifex/Parser.y"
     function yy_r23(){ 
     $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor; 
     }
-#line 1324 "lib/Artifex/Parser.php"
-#line 176 "lib/Artifex/Parser.y"
+#line 1325 "lib/Artifex/Parser.php"
+#line 178 "lib/Artifex/Parser.y"
     function yy_r24(){ $this->_retvalue = NULL;     }
-#line 1327 "lib/Artifex/Parser.php"
-#line 180 "lib/Artifex/Parser.y"
+#line 1328 "lib/Artifex/Parser.php"
+#line 182 "lib/Artifex/Parser.y"
     function yy_r25(){ $this->_retvalue = new Expr('not', $this->yystack[$this->yyidx + 0]->minor);     }
-#line 1330 "lib/Artifex/Parser.php"
-#line 181 "lib/Artifex/Parser.y"
-    function yy_r26(){ $this->_retvalue = new Expr(strtolower(@$this->yystack[$this->yyidx + -1]->minor), $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 1333 "lib/Artifex/Parser.php"
+#line 1331 "lib/Artifex/Parser.php"
 #line 183 "lib/Artifex/Parser.y"
+    function yy_r26(){ $this->_retvalue = new Expr(strtolower(@$this->yystack[$this->yyidx + -1]->minor), $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 1334 "lib/Artifex/Parser.php"
+#line 185 "lib/Artifex/Parser.y"
     function yy_r28(){ $this->_retvalue = new Expr(@$this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 1336 "lib/Artifex/Parser.php"
-#line 184 "lib/Artifex/Parser.y"
+#line 1337 "lib/Artifex/Parser.php"
+#line 186 "lib/Artifex/Parser.y"
     function yy_r29(){ $this->_retvalue = new Expr(trim(@$this->yystack[$this->yyidx + -1]->minor), $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 1339 "lib/Artifex/Parser.php"
-#line 187 "lib/Artifex/Parser.y"
+#line 1340 "lib/Artifex/Parser.php"
+#line 189 "lib/Artifex/Parser.y"
     function yy_r32(){ $this->_retvalue = new Expr($this->yystack[$this->yyidx + -1]->minor);     }
-#line 1342 "lib/Artifex/Parser.php"
-#line 188 "lib/Artifex/Parser.y"
-    function yy_r33(){ $this->_retvalue = new Concat($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 1345 "lib/Artifex/Parser.php"
+#line 1343 "lib/Artifex/Parser.php"
 #line 190 "lib/Artifex/Parser.y"
+    function yy_r33(){ $this->_retvalue = new Concat($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 1346 "lib/Artifex/Parser.php"
+#line 192 "lib/Artifex/Parser.y"
     function yy_r35(){  $this->_retvalue = new Term($this->yystack[$this->yyidx + 0]->minor);     }
-#line 1348 "lib/Artifex/Parser.php"
-#line 191 "lib/Artifex/Parser.y"
+#line 1349 "lib/Artifex/Parser.php"
+#line 193 "lib/Artifex/Parser.y"
     function yy_r36(){ 
     $this->_retvalue = new Exec('var_export', array($this->yystack[$this->yyidx + 0]->minor, new Term(true))); 
     }
-#line 1353 "lib/Artifex/Parser.php"
-#line 198 "lib/Artifex/Parser.y"
+#line 1354 "lib/Artifex/Parser.php"
+#line 200 "lib/Artifex/Parser.y"
     function yy_r38(){ $this->_retvalue = array_merge($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 1356 "lib/Artifex/Parser.php"
-#line 199 "lib/Artifex/Parser.y"
+#line 1357 "lib/Artifex/Parser.php"
+#line 201 "lib/Artifex/Parser.y"
     function yy_r39(){ $this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor);     }
-#line 1359 "lib/Artifex/Parser.php"
-#line 204 "lib/Artifex/Parser.y"
+#line 1360 "lib/Artifex/Parser.php"
+#line 206 "lib/Artifex/Parser.y"
     function yy_r41(){ $this->_retvalue = new Variable($this->yystack[$this->yyidx + 0]->minor);     }
-#line 1362 "lib/Artifex/Parser.php"
-#line 207 "lib/Artifex/Parser.y"
+#line 1363 "lib/Artifex/Parser.php"
+#line 209 "lib/Artifex/Parser.y"
     function yy_r43(){ $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor ; $this->_retvalue[] = $this->yystack[$this->yyidx + -1]->minor;     }
-#line 1365 "lib/Artifex/Parser.php"
-#line 208 "lib/Artifex/Parser.y"
+#line 1366 "lib/Artifex/Parser.php"
+#line 210 "lib/Artifex/Parser.y"
     function yy_r44(){ $this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor);    }
-#line 1368 "lib/Artifex/Parser.php"
-#line 212 "lib/Artifex/Parser.y"
-    function yy_r45(){ $this->_retvalue = trim($this->yystack[$this->yyidx + 0]->minor);     }
-#line 1371 "lib/Artifex/Parser.php"
-#line 213 "lib/Artifex/Parser.y"
-    function yy_r46(){ $this->_retvalue = TRUE;     }
-#line 1374 "lib/Artifex/Parser.php"
+#line 1369 "lib/Artifex/Parser.php"
 #line 214 "lib/Artifex/Parser.y"
-    function yy_r47(){ $this->_retvalue = FALSE;     }
-#line 1377 "lib/Artifex/Parser.php"
+    function yy_r45(){ $this->_retvalue = trim($this->yystack[$this->yyidx + 0]->minor);     }
+#line 1372 "lib/Artifex/Parser.php"
+#line 215 "lib/Artifex/Parser.y"
+    function yy_r46(){ $this->_retvalue = TRUE;     }
+#line 1375 "lib/Artifex/Parser.php"
 #line 216 "lib/Artifex/Parser.y"
+    function yy_r47(){ $this->_retvalue = FALSE;     }
+#line 1378 "lib/Artifex/Parser.php"
+#line 218 "lib/Artifex/Parser.y"
     function yy_r49(){ $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor + 0;     }
-#line 1380 "lib/Artifex/Parser.php"
-#line 217 "lib/Artifex/Parser.y"
+#line 1381 "lib/Artifex/Parser.php"
+#line 219 "lib/Artifex/Parser.y"
     function yy_r50(){ $this->_retvalue = -1 * ($this->yystack[$this->yyidx + 0]->minor + 0);     }
-#line 1383 "lib/Artifex/Parser.php"
-#line 222 "lib/Artifex/Parser.y"
+#line 1384 "lib/Artifex/Parser.php"
+#line 224 "lib/Artifex/Parser.y"
     function yy_r52(){ $this->_retvalue  = $this->yystack[$this->yyidx + -1]->minor;     }
-#line 1386 "lib/Artifex/Parser.php"
-#line 226 "lib/Artifex/Parser.y"
+#line 1387 "lib/Artifex/Parser.php"
+#line 228 "lib/Artifex/Parser.y"
     function yy_r55(){ $this->_retvalue = array($this->yystack[$this->yyidx + -2]->minor => $this->yystack[$this->yyidx + 0]->minor);     }
-#line 1389 "lib/Artifex/Parser.php"
-#line 229 "lib/Artifex/Parser.y"
+#line 1390 "lib/Artifex/Parser.php"
+#line 231 "lib/Artifex/Parser.y"
     function yy_r57(){ $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor; $this->_retvalue[] = $this->yystack[$this->yyidx + 0]->minor;     }
-#line 1392 "lib/Artifex/Parser.php"
+#line 1393 "lib/Artifex/Parser.php"
 
     /**
      * placeholder for the left hand side in a reduce operation.
@@ -1504,7 +1505,7 @@ static public $yy_action = array(
     throw new Exception('Unexpected ' . $this->tokenName($yymajor) .  ' in line ' . $this->line
         . ' (' . $TOKEN . ')  on line ' . $this->line
         . '. Expected: ' . print_r($expect, true));
-#line 1514 "lib/Artifex/Parser.php"
+#line 1515 "lib/Artifex/Parser.php"
     }
 
     /**
