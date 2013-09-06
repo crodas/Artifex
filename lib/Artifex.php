@@ -43,7 +43,7 @@ class Artifex
 {
     public static function save($path, $code)
     {
-        return file_put_contents($path, $code, LOCK_EX);
+        return file_put_contents($path, $code, LOCK_EX) !== false;
     }
 
     public static function compile($bytes)
