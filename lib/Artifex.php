@@ -43,16 +43,7 @@ class Artifex
 {
     public static function save($path, $code)
     {
-        $fp = fopen($path, "a+");
-        if (!flock($fp, LOCK_EX | LOCK_NB)) {
-            fclose($fp);
-            return false;
-        }
-        ftruncate($fp, 0);
-        fwrite($fp, $code);
-        flock($fp, LOCK_UN);
-        fclose($fp);
-        return true;
+        return file_put_contents($path, $code, LOCK_EX);
     }
 
     public static function compile($bytes)
