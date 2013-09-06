@@ -105,10 +105,6 @@ EOF
         $content = uniqid(true);
         $this->assertTrue(Artifex::save($file, $content));
         $this->assertEquals($content, file_get_contents($file));
-        $fp = fopen($file, "a+");
-        $this->assertTrue(flock($fp, LOCK_EX | LOCK_NB));
-        $this->assertFalse(Artifex::save($file, ""));
-        fclose($fp);
         $this->assertEquals($content, file_get_contents($file));
     }
     // }}}
