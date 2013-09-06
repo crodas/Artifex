@@ -56,7 +56,7 @@ class RawString extends Raw
 
     public function execute(Runtime $vm)
     {
-        $text = preg_replace_callback("/__(@?[a-z][a-z0-9_]*)__/i", function($var) use ($vm) {
+        $text = preg_replace_callback("/__(@?[a-z][a-z0-9_]*?)__/i", function($var) use ($vm) {
             if ($var[1][0] == '@') {
                 $var[1]   = substr($var[1], 1);
                 $varValue = true;
