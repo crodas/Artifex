@@ -11,9 +11,13 @@
         "php": ">=5.3.0"
     },
     "minimum-stability": "dev",
+    "version": "0.5.6",
     "autoload": {
         "psr-0": {
             "Artifex": "lib/"
-        }
+        },
+        "classmap": [
+            "lib/Artifex.php"
+        ]
     }
 }
